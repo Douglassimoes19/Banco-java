@@ -19,22 +19,24 @@ public class ContaPoupanca extends Conta{
 		this.taxaRendimento = taxaRendimento;
 	}
 
-	@Override
-    public void depositar(double valor){
-        saldo += valor;
-    }
+	//metodos
+		@Override
+	    public void depositar(double valor){
+	        setSaldo(getSaldo() + valor);
+	    }
 
-    @Override
-    public boolean sacar(double valor){
-        if (saldo >= valor){
-            saldo -= valor;
-            return true;
-        }
-        return false;
-    }
+	    @Override
+	    public void sacar(double valor){
+	        if (getSaldo() >= valor){
+	        	setSaldo(getSaldo() - valor) ;
+	            
+	        }
+	  
+	    }
 
     public double calcularRendimento(){
-        return saldo * taxaRendimento;
+    	double rendimento = getSaldo() * taxaRendimento;
+        return rendimento;
     }
 
  

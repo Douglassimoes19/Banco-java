@@ -1,22 +1,28 @@
 package classesmodel;
 
-import java.time.LocalDate;
+import java.sql.Date;
+import java.time.*;
+
 
 public abstract class Usuario {
     private int id;
     private String nome;
-    private LocalDate dataNascimento;
+    private String cpf;
+    private Date dataNascimento;
     private String telefone;
     private Endereco endereco;
+    private String tipouser;
+    private String senha;
     
-    public Usuario(int id, String nome, LocalDate dataNascimento, String telefone, Endereco endereco) {
-		this.id = id;
+    public Usuario(String nome,String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
 		this.nome = nome;
+		this.cpf = cpf;
 		this.dataNascimento = dataNascimento;
 		this.telefone = telefone;
 		this.endereco = endereco;
+		this.tipouser = tipouser;
+		this.senha = senha;
 	}
-    
     
     //getters e setters
 
@@ -35,13 +41,21 @@ public abstract class Usuario {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
+	
+	public String getCpf() {
+		return cpf;
+	}
 
-	public LocalDate getDataNascimento() {
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+
+	public Date getDataNascimento() {
 		return dataNascimento;
 	}
 
-	public void setDataNascimento(LocalDate dataNascimento) {
-		this.dataNascimento = dataNascimento;
+	public void setDataNascimento(Date Date) {
+		this.dataNascimento = Date;
 	}
 
 	public String getTelefone() {
@@ -60,6 +74,22 @@ public abstract class Usuario {
 		this.endereco = endereco;
 	}
 
+	public String getTipouser() {
+		return tipouser;
+	}
+
+	public void setTipouser(String tipouser) {
+		this.tipouser = tipouser;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
 	public abstract boolean login(String senha);
 
     public void logout(){
@@ -69,6 +99,8 @@ public abstract class Usuario {
     public String consultarDados(){
         return ""; // a implementar
     }
+
+	
 
     
 

@@ -7,7 +7,8 @@ public class ContaCorrente extends Conta{
 	private double limite;
     private LocalDate dataVencimento;
     
-    public ContaCorrente(int numero, String agencia, double saldo, Cliente cliente, double limite, LocalDate dataVencimento) {
+    public ContaCorrente(int numero, String agencia, double saldo, Cliente cliente, double limite, LocalDate dataVencimento) 
+    {
 		super(numero, agencia, saldo, cliente);
 		this.limite = limite;
 		this.dataVencimento = dataVencimento;
@@ -41,12 +42,12 @@ public class ContaCorrente extends Conta{
     }
 
     @Override
-    public boolean sacar(double valor){
+    public void sacar(double valor){
         if (getSaldo() + limite >= valor){
         	setSaldo(getSaldo() - valor) ;
-            return true;
+            
         }
-        return false;
+  
     }
 
     public double consultarLimite(){

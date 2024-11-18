@@ -1,18 +1,16 @@
 package classesmodel;
 
-import java.time.LocalDate;
+import java.sql.Date;
 
 public class Funcionario extends Usuario{
 	
 	private String codigoFuncionario;
     private String cargo;
-    private String senha;
     
-    public Funcionario(int id, String nome, LocalDate dataNascimento, String telefone, Endereco endereco, String codigoFuncionario, String cargo, String senha) {
-		super(id, nome, dataNascimento, telefone, endereco);
+    public Funcionario(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha, String codigoFuncionario, String cargo) {
+		super(nome, cpf, dataNascimento, telefone, endereco, tipouser, senha);
 		this.codigoFuncionario = codigoFuncionario;
 		this.cargo = cargo;
-		this.senha = senha;
 		
 		// TODO Auto-generated constructor stub
 	}
@@ -32,14 +30,6 @@ public class Funcionario extends Usuario{
 
 	public void setCargo(String cargo) {
 		this.cargo = cargo;
-	}
-
-	public String getSenha() {
-		return senha;
-	}
-
-	public void setSenha(String senha) {
-		this.senha = senha;
 	}
 	
 	//metodos

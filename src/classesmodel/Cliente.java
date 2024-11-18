@@ -1,27 +1,19 @@
 package classesmodel;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class Cliente extends Usuario {
     
-	private String senha;
 	
-	public Cliente(int id, String nome, LocalDate dataNascimento, String telefone, Endereco endereco, String senha) {
-		super(id, nome, dataNascimento, telefone, endereco);
-		this.senha = senha;
+	public Cliente(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
+		super(nome, cpf, dataNascimento, telefone, endereco, tipouser, senha);
+		
 		// TODO Auto-generated constructor stub
 	}
 
     
     //getters e setterss
-
-    public String getSenha() {
-		return senha;
-	}
-
-	public void setSenha(String senha) {
-		this.senha = senha;
-	}
 	
 	//metodos
 
