@@ -8,18 +8,23 @@ import classesviewer.*;
 public class BancoMalvader {
 
 	public static void main(String[] args) {
-		/*
-		 * Connection conn = null; try { conn = dbutil.getConnection(); if (conn !=
-		 * null) { JOptionPane.showMessageDialog(null,
-		 * "Conexão bem-sucedida com o banco de dados!"); } else {
-		 * JOptionPane.showMessageDialog(null,
-		 * "Falha na conexão com o banco de dados."); } } finally { // Usando o método
-		 * desconectar da classe DataBaseConnection dbutil.desconectar(conn); }
-		 */
+		
+		 // Connection conn = null; 
+		 // try { 
+		 //	  conn = dbutil.getConnection(); 
+		 //	  if (conn != null) { 
+		 //		  JOptionPane.showMessageDialog(null, "Conexão bem-sucedida com o banco de dados!");
+		 //	  } else {
+		 //		  JOptionPane.showMessageDialog(null,"Falha na conexão com o banco de dados.");
+		 //		  } 
+		//	  }  finally { 
+		 //		   dbutil.desconectar(conn); 
+		 //	  }
+		 
 		
 		new menuviewer().setVisible(true);
-		//new LoginUsuarioViewer().setVisible(true);
-		//new LoginFuncionarioViewer().setVisible(true);
+		//new LoginUsuarioViewer().setVisible(true);v
+		//new LoginFuncionarioViewer().setVisible(true);x
 		//new MenuFuncionarioViewer().setVisible(true);
 		//new AberturaContaPoupancaViewer().setVisible(true);
 		//new AberturaContaCorrenteViewer().setVisible(true);
@@ -34,6 +39,9 @@ public class BancoMalvader {
 		//new ConsultarDadosClienteViewer().setVisible(true);
 		//new EncerramentoContaVeiwer().setVisible(true);
 		//new GerarRelatoriosViewer().setVisible(true);
+		//new DepositoViewer().setVisible(true);
+		//new LimiteViewer().setVisible(true);
+		//new MenuClienteViewer().setVisible(true);
 		
     }
 	 

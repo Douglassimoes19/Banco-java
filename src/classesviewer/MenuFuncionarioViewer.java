@@ -2,16 +2,19 @@ package classesviewer;
 
 import javax.swing.*;
 import java.awt.*;
+import classesmodel.*;
 
 
 public class MenuFuncionarioViewer extends JFrame{
 
+	private Funcionario funcionario;
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public MenuFuncionarioViewer() {
+	public MenuFuncionarioViewer(Funcionario funcionario) {
+		this.funcionario = funcionario;
 		
 		JPanel panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
@@ -38,7 +41,7 @@ public class MenuFuncionarioViewer extends JFrame{
 		panel.add(btnFecharconta);
 		
 		JLabel lblNewLabel_1_1 = new JLabel("Gerenciar Dados:");
-		lblNewLabel_1_1.setBounds(152, 62, 118, 14);
+		lblNewLabel_1_1.setBounds(152, 62, 79, 14);
 		panel.add(lblNewLabel_1_1);
 		
 		JButton btnNewButton_1 = new JButton("Consultar Dados");

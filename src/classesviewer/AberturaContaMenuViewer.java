@@ -6,6 +6,11 @@ import java.awt.*;
 public class AberturaContaMenuViewer extends JFrame{
 	
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public AberturaContaMenuViewer() {
 		
         JPanel panel = new JPanel();

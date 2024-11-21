@@ -65,11 +65,11 @@ public class AlterarDadosClienteViewer extends JFrame{//alterar essa viewer pois
 		
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
-		textField_3.setBounds(274, 82, 110, 20);
+		textField_3.setBounds(229, 83, 110, 20);
 		panel.add(textField_3);
 		
 		JButton btnNewButton = new JButton("Enviar");
-		btnNewButton.setBounds(385, 327, 89, 23);
+		btnNewButton.setBounds(372, 81, 89, 23);
 		panel.add(btnNewButton);
 		
 		JLabel lblNewLabel_1_2_1 = new JLabel("CEP");
@@ -109,7 +109,7 @@ public class AlterarDadosClienteViewer extends JFrame{//alterar essa viewer pois
 		panel.add(textField_7);
 		
 		JButton btnVoltar = new JButton("Voltar");
-		btnVoltar.setBounds(20, 327, 89, 23);
+		btnVoltar.setBounds(387, 330, 89, 23);
 		panel.add(btnVoltar);
 	}
 }

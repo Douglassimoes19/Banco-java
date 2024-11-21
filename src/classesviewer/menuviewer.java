@@ -32,7 +32,9 @@ public class menuviewer extends JFrame{
 		JButton btnNewButton = new JButton("Funcionário");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				dispose();
 				new LoginUsuarioViewer(2).setVisible(true);
+				
 			}
 		});
 		
@@ -40,12 +42,17 @@ public class menuviewer extends JFrame{
 		panel.add(btnNewButton);
 		
 		JButton btnNewButton_2 = new JButton("Sair do Programa");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);	
+			} 
+		});
 		btnNewButton_2.setBounds(166, 237, 145, 23);
 		panel.add(btnNewButton_2);
-		
 		JButton btnCliente = new JButton("Cliente");
 		btnCliente.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				dispose();
 				new LoginUsuarioViewer(1).setVisible(true);
 			}
 		});
