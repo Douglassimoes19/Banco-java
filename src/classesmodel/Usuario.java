@@ -14,8 +14,9 @@ public abstract class Usuario {
     private String tipouser;
     private String senha;
     
-    public Usuario(String nome,String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
-		this.nome = nome;
+    public Usuario(int id,String nome,String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
+		this.id = id;
+    	this.nome = nome;
 		this.cpf = cpf;
 		this.dataNascimento = dataNascimento;
 		this.telefone = telefone;
@@ -93,11 +94,10 @@ public abstract class Usuario {
 	public abstract boolean login(String senha);
 
     public void logout(){
-        // a implementar
     }
 
     public String consultarDados(){
-        return ""; // a implementar
+        return ""; 
     }
 
 	

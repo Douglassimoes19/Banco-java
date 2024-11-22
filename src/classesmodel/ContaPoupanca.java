@@ -4,8 +4,8 @@ public class ContaPoupanca extends Conta{
     
 	private double taxaRendimento;
     
-	public ContaPoupanca(int numero, String agencia, double saldo, Cliente cliente, double taxaRendimento) {
-		super(numero, agencia, saldo, cliente);
+	public ContaPoupanca(String numero, String agencia, double saldo, String conta, Cliente cliente, double taxaRendimento) {
+		super(numero, agencia, saldo, cliente,conta);
 		this.taxaRendimento = taxaRendimento;
 		// TODO Auto-generated constructor stub
 	}

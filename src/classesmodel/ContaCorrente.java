@@ -7,9 +7,9 @@ public class ContaCorrente extends Conta{
 	private double limite;
     private LocalDate dataVencimento;
     
-    public ContaCorrente(int numero, String agencia, double saldo, Cliente cliente, double limite, LocalDate dataVencimento) 
+    public ContaCorrente(String numero, String agencia, double saldo, Cliente cliente, double limite,String conta, LocalDate dataVencimento) 
     {
-		super(numero, agencia, saldo, cliente);
+		super(numero, agencia, saldo, cliente,conta);
 		this.limite = limite;
 		this.dataVencimento = dataVencimento;
 		
@@ -53,6 +53,17 @@ public class ContaCorrente extends Conta{
     public double consultarLimite(){
         return limite;
 
+    }
+    
+    @Override
+    public String toString() {
+        return "ContaCorrente{" +
+               "numeroConta=" + getNumero() + 
+               ", agencia='" + getAgencia() + '\'' + 
+               ", saldo=" + getSaldo() + 
+               ", limite=" + limite + 
+               ", dataVencimento=" + dataVencimento +
+               '}';
     }
 
 

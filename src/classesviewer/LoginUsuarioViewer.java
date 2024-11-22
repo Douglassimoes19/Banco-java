@@ -1,11 +1,17 @@
 package classesviewer;
 
 import javax.swing.*;
+
+import classescontroller.ControllerCliente;
 import classescontroller.ControllerUsuario;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import classesmodel.Cliente;
+import classesmodel.Conta;
 import classesmodel.Funcionario;
 import classesdao.usuarioDao;
 
@@ -81,14 +87,58 @@ public class LoginUsuarioViewer extends JFrame {
         JButton btnEnviar = new JButton("Entrar");
         btnEnviar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String cpf = login.getText(); // Para JTextField
+            	
+            	String cpf = login.getText(); // Para JTextField
                 String senha1 = new String(senha.getPassword()); // Para JPasswordField
-
+                Conta contaSelecionada;
+                
                 Cliente cliente = controllerUsuario.autenticarCliente(cpf, senha1);
+                 
+                ControllerCliente controller =  new ControllerCliente(cliente);
+
                 if (cliente != null) {
                     JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
-                    dispose(); // Fecha a tela de login
-                    new MenuClienteViewer(cliente).setVisible(true); // Passa o cliente para a próxima tela
+
+                    // Recupera as contas associadas ao cliente
+                    List<Conta> contas = controller.buscarContasPorCliente(cliente);
+                    System.out.println(contas);
+                    if (contas == null || contas.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "Nenhuma conta encontrada para este cliente.");
+                        return;
+                    }
+
+                    
+
+                    if (contas.size() > 1) {
+                        // Exibe um diálogo para o cliente escolher uma conta
+                        String[] opcoes = contas.stream()
+                                .map(c -> c.getNumero() + " (" + c.getConta() + ")")
+                                .toArray(String[]::new);
+                        String escolha = (String) JOptionPane.showInputDialog(
+                                null, 
+                                "Selecione a conta:",  
+                                "Escolha de Conta", 
+                                JOptionPane.QUESTION_MESSAGE, 
+                                null, 
+                                opcoes, 
+                                opcoes[0]);
+
+                        if (escolha == null) {
+                            JOptionPane.showMessageDialog(null, "Você deve selecionar uma conta.");
+                            return;
+                        }
+
+                        // Identifica a conta selecionada
+                        int indiceEscolhido = Arrays.asList(opcoes).indexOf(escolha);
+                        contaSelecionada = contas.get(indiceEscolhido);
+                    } else {
+                        // Se há apenas uma conta, seleciona automaticamente
+                        contaSelecionada = contas.get(0);
+                    }
+
+                    // Passa o cliente e a conta para a próxima tela
+                    dispose();
+                    new MenuClienteViewer(cliente, contaSelecionada).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(null, "CPF ou senha incorretos!");
                     dispose();

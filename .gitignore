@@ -11,10 +11,11 @@ out/
 .settings
 .springBeans
 .sts4-cache
+.dbutil.java
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-!**/src/classesutil
+
 
 ### NetBeans ###
 /nbproject/private/

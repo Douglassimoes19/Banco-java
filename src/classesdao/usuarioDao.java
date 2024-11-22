@@ -5,14 +5,18 @@ import classesmodel.*;
 import classesutil.dbutil;
 
 public class usuarioDao {
+	
     private Connection connection;
+    
+    public usuarioDao() {
+    	connection = dbutil.getConnection();
+    }
 
     public Cliente autenticarCliente(String cpf, String senha) {
         String sql = "SELECT * FROM usuario WHERE cpf = ? AND senha = ? AND tipo_usuario = 'CLIENTE';";
         Cliente cliente = null;
 
-        try (Connection conn = dbutil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, cpf);
             stmt.setString(2, senha);
@@ -29,6 +33,8 @@ public class usuarioDao {
                             rs.getString("tipo_usuario"),
                             rs.getString("senha")
                     );
+                    System.out.println(cliente.getCpf());
+                    return cliente;
                 }
             }
         } catch (SQLException e) {
@@ -41,8 +47,7 @@ public class usuarioDao {
         String sql = "SELECT * FROM usuario, funcionario WHERE cpf = ? AND senha = ? AND tipo_usuario = 'FUNCIONARIO';";
         Funcionario funcionario = null;
 
-        try (Connection conn = dbutil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, cpf);
             stmt.setString(2, senha);
@@ -71,8 +76,7 @@ public class usuarioDao {
 
     public boolean cadastrarUsuario(Usuario usuario) {
         String query = "INSERT INTO usuario (cpf, nome, data_nascimento, telefone, senha, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = dbutil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, usuario.getCpf());
             stmt.setString(2, usuario.getNome());

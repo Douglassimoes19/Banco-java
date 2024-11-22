@@ -1,47 +1,56 @@
 package classesmodel;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class Cliente extends Usuario {
-    
-	
-	public Cliente(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
-		super(nome, cpf, dataNascimento, telefone, endereco, tipouser, senha);
-		
-		// TODO Auto-generated constructor stub
-	}
+    private Conta conta; // Atributo para associar uma conta ao cliente
 
-    
-    //getters e setterss
-	
-	//metodos
-
-	public double consultarSaldo(){
-        return 0.0; // a implementar
+    public Cliente(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco, String tipouser, String senha) {
+        super(id, nome, cpf, dataNascimento, telefone, endereco, tipouser, senha);
     }
 
-    public void depositar(double valor){
-        //  a implementar
+    // Getter e Setter para a conta
+    public Conta getConta() {
+        return conta;
     }
 
-    public boolean sacar(double valor){
-        return true; // ai implementar
+    public void setConta(Conta conta) {
+        this.conta = conta;
     }
 
-    public String consultarExtrato(){
-        return ""; // a implementar
+    @Override
+    public boolean login(String senha) {
+        // Implementação do login (se necessário)
+        return false;
     }
 
-    public double consultarLimite(){
-        return 0.0; // a implementar
+    // Métodos delegando operações para a conta associada
+    public double consultarSaldo(Cliente cliente) {
+        return conta != null ? conta.consultarSaldo(cliente) : 0.0;
     }
 
-	@Override
-	public boolean login(String senha) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    public void depositar(double valor) {
+        if (conta != null) {
+            conta.depositar(valor);
+        }
+    }
 
+    public boolean sacar(double valor) {
+        if (conta != null) {
+            conta.sacar(valor);
+            return true;
+        }
+        return false;
+    }
 
+    public String consultarExtrato() {
+        return conta != null ? conta.getExtrato() : "Nenhuma conta associada.";
+    }
+
+    public double consultarLimite() {
+        if (conta instanceof ContaCorrente) {
+            return ((ContaCorrente) conta).getLimite();
+        }
+        return 0.0;
+    }
 }
