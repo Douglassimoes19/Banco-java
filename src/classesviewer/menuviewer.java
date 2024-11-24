@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 
 public class menuviewer extends JFrame{
 	
+	//viewer inicial do sistema, apresenta apenas tre opções para entrar como cliente, funcionario ou sair do sistema;
+	
 	/**
 	 * 
 	 */
@@ -59,6 +61,5 @@ public class menuviewer extends JFrame{
 		btnCliente.setBounds(265, 116, 119, 48);
 		panel.add(btnCliente);
 	}
-	
 	
 }

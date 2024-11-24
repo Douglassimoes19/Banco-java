@@ -2,6 +2,7 @@ package classesmodel;
 
 import java.sql.Date;
 
+
 public class Cliente extends Usuario {
     private Conta conta; // Atributo para associar uma conta ao cliente
 

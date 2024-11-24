@@ -1,13 +1,14 @@
 package classesmodel;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 public class ContaCorrente extends Conta{
 	
 	private double limite;
-    private LocalDate dataVencimento;
+    private Date dataVencimento;
     
-    public ContaCorrente(String numero, String agencia, double saldo, Cliente cliente, double limite,String conta, LocalDate dataVencimento) 
+    public ContaCorrente(String numero, String agencia, double saldo, Cliente cliente, double limite,String conta, Date dataVencimento) 
     {
 		super(numero, agencia, saldo, cliente,conta);
 		this.limite = limite;
@@ -27,11 +28,11 @@ public class ContaCorrente extends Conta{
 		this.limite = limite;
 	}
 
-	public LocalDate getDataVencimento() {
+	public Date getDataVencimento() {
 		return dataVencimento;
 	}
 
-	public void setDataVencimento(LocalDate dataVencimento) {
+	public void setDataVencimento(Date dataVencimento) {
 		this.dataVencimento = dataVencimento;
 	}
 

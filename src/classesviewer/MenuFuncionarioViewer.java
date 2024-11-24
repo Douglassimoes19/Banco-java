@@ -2,72 +2,147 @@ package classesviewer;
 
 import javax.swing.*;
 import java.awt.*;
-import classesmodel.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.util.List;
+import classescontroller.*;
+import classesmodel.Funcionario;
+import classesdao.*;
 
+public class MenuFuncionarioViewer extends JFrame {
 
-public class MenuFuncionarioViewer extends JFrame{
+    private Funcionario funcionario;
+    private ControllerFuncionario controller;
 
-	private Funcionario funcionario;
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    public MenuFuncionarioViewer(Funcionario funcionario) {
+        this.funcionario = funcionario;
+        controller = new ControllerFuncionario(new FuncionarioDao());
+        this.controller = controller;
 
-	public MenuFuncionarioViewer(Funcionario funcionario) {
-		this.funcionario = funcionario;
-		
-		JPanel panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.CENTER);
-		panel.setLayout(null);
-		setSize(500, 330);
+        JPanel panel = new JPanel();
+        getContentPane().add(panel, BorderLayout.CENTER);
+        panel.setLayout(null);
+        setSize(435, 413);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JLabel lblNewLabel = new JLabel("Menu Funcionário");
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
-		lblNewLabel.setBounds(178, 11, 147, 14);
-		panel.add(lblNewLabel);
-		
-		JButton btnNewButton = new JButton("Abrir Conta");
-		btnNewButton.setBounds(10, 87, 132, 36);
-		panel.add(btnNewButton);
-		
-		JLabel lblNewLabel_1 = new JLabel("Opções de Conta:");
-		lblNewLabel_1.setBounds(10, 62, 118, 14);
-		panel.add(lblNewLabel_1);
-		
-		JButton btnFecharconta = new JButton("Encerrar Conta");
-		btnFecharconta.setBounds(10, 134, 132, 36);
-		panel.add(btnFecharconta);
-		
-		JLabel lblNewLabel_1_1 = new JLabel("Gerenciar Dados:");
-		lblNewLabel_1_1.setBounds(152, 62, 79, 14);
-		panel.add(lblNewLabel_1_1);
-		
-		JButton btnNewButton_1 = new JButton("Consultar Dados");
-		btnNewButton_1.setBounds(152, 87, 130, 36);
-		panel.add(btnNewButton_1);
-		
-		JButton btnFecharconta_1 = new JButton("Alterar Dados");
-		btnFecharconta_1.setBounds(152, 134, 130, 36);
-		panel.add(btnFecharconta_1);
-		
-		JButton btnNewButton_1_1 = new JButton("Cadastrar Funcionários");
-		btnNewButton_1_1.setBounds(292, 87, 182, 36);
-		panel.add(btnNewButton_1_1);
-		
-		JLabel lblNewLabel_1_1_1 = new JLabel("Cadastros:");
-		lblNewLabel_1_1_1.setBounds(292, 62, 118, 14);
-		panel.add(lblNewLabel_1_1_1);
-		
-		JButton btnFecharconta_1_1 = new JButton("Gerar Relatórios");
-		btnFecharconta_1_1.setBounds(10, 244, 157, 36);
-		panel.add(btnFecharconta_1_1);
-		
-		JButton btnNewButton_2 = new JButton("Sair");
-		btnNewButton_2.setBounds(385, 257, 89, 23);
-		panel.add(btnNewButton_2);
+
+        JLabel lblNewLabel = new JLabel("Menu Funcionário");
+        lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
+        lblNewLabel.setBounds(10, 6, 147, 14);
+        panel.add(lblNewLabel);
+
+        // Botão: Abrir Conta
+        JButton btnAbrirConta = new JButton("Abrir Conta");
+        btnAbrirConta.setBounds(10, 65, 132, 36);
+        btnAbrirConta.addActionListener(e -> abrirConta());
+        panel.add(btnAbrirConta);
+
+        JLabel lblNewLabel_1 = new JLabel("Opções de Conta:");
+        lblNewLabel_1.setBounds(10, 41, 132, 14);
+        panel.add(lblNewLabel_1);
+
+        // Encerrar Conta
+        JButton btnEncerrarConta = new JButton("Encerrar Conta");
+        btnEncerrarConta.setBounds(152, 65, 132, 36);
+        btnEncerrarConta.addActionListener(e -> encerrarConta());
+        panel.add(btnEncerrarConta);
+
+        JLabel lblNewLabel_1_1 = new JLabel("Gerenciar Dados:");
+        lblNewLabel_1_1.setBounds(10, 109, 130, 14);
+        panel.add(lblNewLabel_1_1);
+
+        // Consultar Dados
+        JButton btnConsultarDados = new JButton("Consultar Dados");
+        btnConsultarDados.setBounds(10, 133, 130, 36);
+        btnConsultarDados.addActionListener(e -> consultarDados());
+        panel.add(btnConsultarDados);
+
+        // Alterar Dados
+        JButton btnAlterarDados = new JButton("Alterar Dados");
+        btnAlterarDados.setBounds(152, 134, 130, 36);
+        btnAlterarDados.addActionListener(e -> alterarDados());
+        panel.add(btnAlterarDados);
+
+        // Cadastrar Funcionários
+        JButton btnCadastrarFuncionario = new JButton("Cadastrar Funcionários");
+        btnCadastrarFuncionario.setBounds(10, 211, 147, 36);
+        btnCadastrarFuncionario.addActionListener(e -> cadastrarFuncionario());
+        panel.add(btnCadastrarFuncionario);
+
+        JLabel lblNewLabel_1_1_1 = new JLabel("Cadastros:");
+        lblNewLabel_1_1_1.setBounds(10, 187, 118, 14);
+        panel.add(lblNewLabel_1_1_1);
+
+        // Gerar Relatórios
+        JButton btnGerarRelatorios = new JButton("Gerar Relatórios");
+        btnGerarRelatorios.setBounds(10, 317, 157, 36);
+        btnGerarRelatorios.addActionListener(e -> gerarRelatorios());
+        panel.add(btnGerarRelatorios);
+
+     // Botão Sair
+        JButton btnSair = new JButton("Sair");
+        btnSair.setBounds(323, 317, 88, 36);
+        btnSair.setBackground(Color.RED);
+        btnSair.setForeground(Color.WHITE);
+        btnSair.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new menuviewer().setVisible(true); // Retorna ao menu principal
+            }
+        });
+        panel.add(btnSair);
         
-		
-	}
+     // Saudação com o nome do cliente
+        JLabel lblUsuarioNome = new JLabel("Bem-vindo, " + funcionario.getNome() + "!");
+        lblUsuarioNome.setBounds(176, 3, 235, 20);
+        lblUsuarioNome.setFont(new Font("Tahoma", Font.BOLD, 14));
+        panel.add(lblUsuarioNome); 
+    }
+
+    // Métodos para os botões
+
+    private void abrirConta() {
+    	dispose();
+    	new AberturaContaMenuViewer().setVisible(true);
+    }
+
+    private void encerrarConta() {
+    	
+    }
+
+    private void consultarDados() {
+        // Listar dados de funcionários
+        //List<Funcionario> funcionarios = controller.listarFuncionarios();
+        //StringBuilder sb = new StringBuilder("Funcionários cadastrados:\n");
+        //for (Funcionario f : funcionarios) {
+        //    sb.append("ID: ").append(f.getId())
+         //     .append(", Nome: ").append(f.getNome())
+        //      .append(", Cargo: ").append(f.getCargo())
+          //    .append("\n");
+        //}
+        //JOptionPane.showMessageDialog(this, sb.toString());
+    	new ConsultaDadosMenuViewer().setVisible(true);
+    }
+
+    private void alterarDados() {
+        // Chamar método para atualizar dados
+        JOptionPane.showMessageDialog(this, "Funcionalidade de alterar dados.");
+    }
+
+    private void cadastrarFuncionario() {
+        // Criar um exemplo de funcionário para cadastro
+        //Funcionario novoFuncionario = new Funcionario(0, "FUNC456", "Analista", "João Silva", "12345678900", LocalDate.of(1990, 4, 15), "11999999999","senha123" );
+        //controller.cadastrarFuncionario(novoFuncionario);
+    }
+
+    private void gerarRelatorios() {
+        // Chamar método no controller para gerar relatórios
+        JOptionPane.showMessageDialog(this, "Funcionalidade de gerar relatórios.");
+    }
+
+    private void sair() {
+        // Fecha a aplicação
+        dispose();
+    }
 }

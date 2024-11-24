@@ -22,11 +22,11 @@ public class BancoMalvader {
 		 //	  }
 		 
 		
-		new menuviewer().setVisible(true);
+		//new menuviewer().setVisible(true);
 		//new LoginUsuarioViewer().setVisible(true);v
 		//new LoginFuncionarioViewer().setVisible(true);x
 		//new MenuFuncionarioViewer().setVisible(true);
-		//new AberturaContaPoupancaViewer().setVisible(true);
+		new AberturaContaPoupancaViewer().setVisible(true);
 		//new AberturaContaCorrenteViewer().setVisible(true);
 		//new AberturaContaMenuViewer().setVisible(true);
 		//new AlterarDadosClienteViewer().setVisible(true);

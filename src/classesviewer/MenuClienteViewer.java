@@ -8,6 +8,11 @@ import classesmodel.*;
 import classescontroller.*;
 
 public class MenuClienteViewer extends JFrame {
+	
+	//nessa viewer o cliente tem acesso aos dados dele, apos selecionar a conta desejada ele podera fazer depositos e saques
+	//alem de ver extratos, caso seja conta corrente ele podera ver o limite de credito, se for poupança verá a taxa de rendimento
+	
+	
     private Cliente cliente;
     private ControllerCliente controller;
     private Conta conta;
@@ -104,7 +109,7 @@ public class MenuClienteViewer extends JFrame {
         lblSaldo.setFont(new Font("Tahoma", Font.PLAIN, 14));
         panel.add(lblSaldo);
 
-        // Saudação com o nome do cliente
+        // exibe com o nome do cliente
         JLabel lblUsuarioNome = new JLabel("Bem-vindo, " + cliente.getNome() + "!");
         lblUsuarioNome.setBounds(50, 10, 300, 20);
         lblUsuarioNome.setFont(new Font("Tahoma", Font.BOLD, 14));

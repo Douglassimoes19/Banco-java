@@ -11,8 +11,65 @@ public class ContaDao {
     public ContaDao() {
         connection = dbutil.getConnection();
     }
+    
+    public boolean inserirContaPoupanca(String numero, String agencia, double saldo, String conta, Cliente cliente, double taxaRendimento) {
+        String sql = "INSERT INTO conta (numero_conta, agencia, saldo, tipo_conta, id_cliente) VALUES (?, ?, ?, ?, ?)";
+        String update = "INSERT INTO conta_poupanca (taxa_rendimento, id_conta) VALUES (?, ?)";
 
-    // Buscar conta por ID do cliente (supondo que a relação cliente-conta esteja feita)
+        try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            // Definir os parâmetros da primeira inserção na tabela conta
+            stmt.setString(1, numero);
+            stmt.setString(2, agencia);
+            stmt.setDouble(3, saldo);
+            stmt.setString(4, conta);
+            stmt.setInt(5, cliente.getId());
+
+            // insere o primeiro insert
+            int rowsAffected = stmt.executeUpdate();
+
+            // Verificar se foi 
+            if (rowsAffected > 0) {
+                // puxa o ID
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int idConta = generatedKeys.getInt(1); 
+
+                        // faz inserção na tabela conta_poupanca com o id da conta
+                        try (PreparedStatement stmtUpdate = connection.prepareStatement(update)) {
+                            stmtUpdate.setDouble(1, taxaRendimento);
+                            stmtUpdate.setInt(2, idConta); 
+                            
+                            int result = stmtUpdate.executeUpdate();
+                            
+                            if (result > 0) return true;
+                        }
+                    }
+                }
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao inserir conta poupança no banco de dados.");
+            
+        }
+        return false;
+    }
+
+    public void inserirContaCorrente(ContaCorrente conta) {
+        String sql = "INSERT INTO conta_corrente (numero_conta, limite, data_vencimento) VALUES (?, ?, ?)";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, conta.getNumero());
+            stmt.setDouble(2, conta.getLimite());
+            stmt.setDate(3, conta.getDataVencimento());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao inserir conta corrente no banco de dados.");
+        }
+    }	
+
+    // Buscar conta por ID do cliente 
     public Conta buscarContaPorClienteId(Cliente cliente) {
         String sql = """
             SELECT 
@@ -37,23 +94,23 @@ public class ContaDao {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    // Dados comuns entre as contas
+                    //  cria as variaveis para instanciar
                     String numeroConta = rs.getString("c.numero_conta");
                     String agencia = rs.getString("c.agencia");
                     double saldo = rs.getDouble("c.saldo");
                     String tipoConta = rs.getString("c.tipo_conta");
 
-                    // Objeto Cliente associado à conta
+                
                     
 
-                    // Verifica o tipo de conta e instancia o objeto correspondente
+                    // Verifica o tipo de conta e instancia a conta pra nois
                     if ("poupanca".equalsIgnoreCase(tipoConta)) {
                         double taxaRendimento = rs.getDouble("cp.taxa_rendimento");
                         System.out.println("passou aqui");
                         return new ContaPoupanca(numeroConta, agencia, saldo,tipoConta, cliente, taxaRendimento);
                     } else if ("corrente".equalsIgnoreCase(tipoConta)) {
                         double limite = rs.getDouble("cc.limite");
-                        LocalDate dataVencimento = rs.getDate("cc.data_vencimento").toLocalDate();
+                        Date dataVencimento = rs.getDate("cc.data_vencimento");
                         return new ContaCorrente(numeroConta, agencia, saldo, cliente, limite,tipoConta, dataVencimento);
                     }
                 }
@@ -74,6 +131,7 @@ public class ContaDao {
         return 0.0; // Retorna 0 se não encontrar a conta
     }
     
+    //Busca a conta poupança do cliente
     public ContaPoupanca buscarContaPoupancaPorCliente(Cliente cliente) {
         String sql = """
             SELECT 
@@ -96,7 +154,7 @@ public class ContaDao {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Caso haja uma conta poupança, cria e retorna uma nova instância
+                // cria e retorna uma nova instância
                 String numeroConta = rs.getString("numero_conta");
                 String agencia = rs.getString("agencia");
                 double saldo = rs.getDouble("saldo");
@@ -108,15 +166,16 @@ public class ContaDao {
             e.printStackTrace();
         }
 
-        return null; // Caso o cliente não tenha uma conta poupança
+        return null; // Caso o cliente não tenha conta poupança
     }
     
+    //deposita o valor na conta
     public boolean depositar(Conta conta, double valor) {
         String sql = "UPDATE conta SET saldo = saldo + ? WHERE numero_conta = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setDouble(1, valor);  // valor a ser depositado
-            stmt.setString(2, conta.getNumero());  // número da conta
+            stmt.setDouble(1, valor);  
+            stmt.setString(2, conta.getNumero());  // número da conta( não confundir com o id do cliente)
 
             // Executa a atualização
             int rowsAffected = stmt.executeUpdate();
@@ -128,6 +187,7 @@ public class ContaDao {
         return false;
     }
     
+    //Atualiza o saldo caso ele tenha feito saque parece outro metodo mas não é 
     public boolean atualizarSaldo(Conta conta) {
         String sql = "UPDATE conta SET saldo = ? WHERE numero_conta = ?";
         

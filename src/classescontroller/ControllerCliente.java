@@ -3,7 +3,9 @@ package classescontroller;
 import classesmodel.Cliente;
 import classesmodel.*;
 
-import java.util.List;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import classesdao.ClienteDao;
 import classesdao.ContaDao;
@@ -19,6 +21,41 @@ public class ControllerCliente{
         this.contaDao = new ContaDao();
         this.clienteDao = new ClienteDao();
     }
+    
+ // Método que verifica se o cliente já existe e, se não, salva o cliente e cria a conta
+    public String processarCadastroCliente(String cpf, String nome, Date dataNascimento, String telefone, 
+                                           String cep, String local, String bairro, String numero, 
+                                           String cidade, String estado, String agencia, String numeroConta, 
+                                           String senha) {
+        try {
+        	
+        	int numeroCasa = Integer.parseInt(numero);
+            
+            // Verificar se o cliente já existe
+            if (clienteDao.clienteExiste(cpf)) {
+                return "Cliente já possui uma conta cadastrada.";
+            }
+
+            // Criar o cliente
+            Cliente novoCliente = new Cliente(0, nome, cpf, dataNascimento, telefone,
+                                              new Endereco(cep, local, numeroCasa, bairro, cidade, estado),"CLIENTE",
+                                              senha);
+
+            // Salvar o cliente e a conta no banco 
+            clienteDao.inserirCliente(novoCliente);
+            //contaDao.inserirContaPoupanca(contaPoupanca);
+            String tipoConta = "POUPANÇA";
+            ControllerConta conta = new ControllerConta();
+
+            String resultado = conta.cadastrarContaPoupanca(numeroConta,  agencia, 0,  tipoConta,  senha, novoCliente, 0.75);
+
+            return resultado;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "Erro ao criar conta: " + ex.getMessage();
+        }
+    }
+
 
     // Salva ou atualiza o cliente no banco de dados
     public boolean salvarCliente() {
@@ -50,7 +87,7 @@ public class ControllerCliente{
                 conta.setSaldo(conta.getSaldo() - valor);
                 
                 // Atualiza o saldo da conta no banco de dados
-                return contaDao.atualizarSaldo(conta);  // Método responsável por persistir no banco
+                return contaDao.atualizarSaldo(conta);  // atualiza saldo no banco
             }
         }
         return false;  // Retorna false se o saque não for possível

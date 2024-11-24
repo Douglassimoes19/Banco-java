@@ -3,7 +3,7 @@ package classesdao;
 import classesmodel.*;
 import classesutil.dbutil;
 import java.sql.*;
-import java.time.LocalDate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +18,23 @@ public class ClienteDao {
     // Inserir cliente no banco de dados
     public boolean inserirCliente(Cliente cliente) {
         String sql = "INSERT INTO usuario (nome, cpf, data_nascimento, telefone, tipo_usuario, senha) VALUES (?, ?, ?, ?, ?, ?);";
-        
+        String set = "INSERT INTO cliente(id_usuario) VALUES (?);";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        	
+        	// Converter a data de java.util.Date para java.sql.Date
+        	System.out.println(cliente.getDataNascimento());
+            //java.sql.Date sqlDataNascimento = new java.sql.Date(cliente.getDataNascimento().getTime());
+            
+            if (cliente.getDataNascimento() instanceof java.util.Date) {
+                java.util.Date dataNascimentoUtil = cliente.getDataNascimento();
+                java.sql.Date dataNascimentoSql = new java.sql.Date(dataNascimentoUtil.getTime());
+                stmt.setDate(3, dataNascimentoSql);
+            } else {
+                // Caso a data não seja do tipo java.util.Date, tratar o erro ou logar a informação
+                System.out.println("Erro: A data de nascimento não é uma instância de java.util.Date");
+            }
+            
+        	
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getCpf());
             stmt.setDate(3, cliente.getDataNascimento());
@@ -32,10 +47,19 @@ public class ClienteDao {
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        cliente.setId(generatedKeys.getInt(1));
+                        
+                        int idUsuario = generatedKeys.getInt(1);
+                        
+                        try (PreparedStatement stmtUpdate = connection.prepareStatement(set)) {
+                            stmtUpdate.setDouble(1, idUsuario);
+                            int rowsCliente = stmtUpdate.executeUpdate();
+                            if (rowsCliente > 0) {
+                                return true;
+                            }
+                        }
                     }
                 }
-                return true;
+                
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,7 +111,7 @@ public class ClienteDao {
                         rs.getString("cpf"),
                         rs.getDate("data_nascimento"),
                         rs.getString("telefone"),
-                        null, // Endereço seria tratado separadamente
+                        null, // Endereço sera tratado separadamente
                         rs.getString("tipo_usuario"),
                         rs.getString("senha")
                     );
@@ -100,7 +124,7 @@ public class ClienteDao {
         return null;
     }
 
-    // Buscar todos os clientes
+    // Busca  todos os clientes
     public List<Cliente> buscarTodosClientes() {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "SELECT * FROM cliente, usuario;";
@@ -113,7 +137,7 @@ public class ClienteDao {
                     rs.getString("cpf"),
                     rs.getDate("data_nascimento"),
                     rs.getString("telefone"),
-                    null, // Endereço seria tratado separadamente
+                    null, // Endereço sera tratado separadamente
                     rs.getString("tipo_usuario"),
                     rs.getString("senha")
                 );
@@ -158,7 +182,7 @@ public class ClienteDao {
                     String tipoConta = resultSet.getString("tipo_conta");
 
                     
-                    System.out.println("passe aqui");
+                    //System.out.println("passe aqui");
                     
 
                     // Verifica o tipo de conta e instancia o objeto correspondente
@@ -168,7 +192,7 @@ public class ClienteDao {
                     } else if ("CORRENTE".equalsIgnoreCase(tipoConta)) {
                     	
                         double limite = resultSet.getDouble("limite");
-                        LocalDate dataVencimento = resultSet.getDate("data_vencimento").toLocalDate();
+                        Date dataVencimento = resultSet.getDate("data_vencimento");
                         contas.add(new ContaCorrente(numeroConta, agencia, saldo, cliente, limite,tipoConta, dataVencimento));
                     }
                 }
@@ -178,6 +202,20 @@ public class ClienteDao {
         }
 
         return contas;
+    }
+    
+ // Método para verificar se o cliente existe no banco
+    public boolean clienteExiste(String cpf) {
+        String sql = "SELECT COUNT(*) FROM cliente WHERE cpf = ?";
+        try (
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 

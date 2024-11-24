@@ -16,6 +16,11 @@ import classesmodel.Funcionario;
 import classesdao.usuarioDao;
 
 public class LoginUsuarioViewer extends JFrame {
+	
+	//essa viwer de login onde o usuario apos escolher a opção nos botões ira colocar suas credenciais
+	//para entrar no sistema, o construtor inicia apenas pegando o tipo "1" para cliente "2" para funcionario
+	//o painel alternará de acordo com o tipo. após a veirficação ele irá passar para proxima viewer, menuCliente
+	//ou menuFuncionario; ps: caso seja a opção cliente ele verifica a conta do cliente antes de passar para a proxima viewer
 
     private static final long serialVersionUID = 1L;
 
@@ -87,9 +92,11 @@ public class LoginUsuarioViewer extends JFrame {
         JButton btnEnviar = new JButton("Entrar");
         btnEnviar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	//apos apertar esse botão, fará a autenticaçaõ do usuario e conferira as contas para dar opção de escolha caso 
+            	// exista mais de uma conta para um mesmo usuario;
             	
-            	String cpf = login.getText(); // Para JTextField
-                String senha1 = new String(senha.getPassword()); // Para JPasswordField
+            	String cpf = login.getText(); 
+                String senha1 = new String(senha.getPassword()); 
                 Conta contaSelecionada;
                 
                 Cliente cliente = controllerUsuario.autenticarCliente(cpf, senha1);
@@ -99,7 +106,7 @@ public class LoginUsuarioViewer extends JFrame {
                 if (cliente != null) {
                     JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
 
-                    // Recupera as contas associadas ao cliente
+                    // Recupera as contas associadas ao cliente;
                     List<Conta> contas = controller.buscarContasPorCliente(cliente);
                     System.out.println(contas);
                     if (contas == null || contas.isEmpty()) {
@@ -137,7 +144,7 @@ public class LoginUsuarioViewer extends JFrame {
                     }
 
                     // Passa o cliente e a conta para a próxima tela
-                    dispose();
+                    dispose();//some com a tela antes de enviar para a proxima 
                     new MenuClienteViewer(cliente, contaSelecionada).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(null, "CPF ou senha incorretos!");
@@ -185,10 +192,11 @@ public class LoginUsuarioViewer extends JFrame {
         JButton btnEnviar = new JButton("Entrar");
         btnEnviar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String cpf = loginf.getText(); // Para JTextField
-                String senha1 = new String(senhaf.getPassword()); // Para JPasswordField
+                String cpf = loginf.getText(); 
+                String senha1 = new String(senhaf.getPassword()); 
 
                 Funcionario funcionario = controllerUsuario.autenticarFuncionario(cpf, senha1);
+                //System.out.println(funcionario.getNome());
                 if (funcionario != null) {
                     JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");
                     dispose(); // Fecha a tela de login
