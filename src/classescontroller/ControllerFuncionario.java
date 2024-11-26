@@ -37,6 +37,12 @@ public class ControllerFuncionario {
 	        }
 	    }
 	    
+	    public boolean atualizarFuncionario(Funcionario funcionario) {
+	        
+	        return funcionarioDao.atualizarFuncionario(funcionario); // Retorna true se a atualização foi bem-sucedida
+	    }
+
+	    
 	    public Funcionario buscarFuncionarioPorCodigo(String codigo) {
 	        if (codigo == null || codigo.isEmpty()) {
 	            throw new IllegalArgumentException("O código do funcionário não pode ser vazio.");

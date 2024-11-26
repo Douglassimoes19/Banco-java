@@ -1,6 +1,5 @@
 package classescontroller;
 
-import classesmodel.Cliente;
 import classesviewer.AberturaContaMenuViewer;
 import classesmodel.*;
 
@@ -173,4 +172,10 @@ public class ControllerCliente{
 
         return clienteDao.buscarPorCpf(cpf);
     }
+    
+    public boolean atualizarCliente(Cliente cliente) {
+        
+        return clienteDao.atualizarCliente(cliente); // Retorna true se a atualização foi bem-sucedida
+    }
+    
 }

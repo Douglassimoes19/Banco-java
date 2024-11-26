@@ -21,8 +21,8 @@ public class BancoMalvader {
 		 //		   dbutil.desconectar(conn); 
 		 //	  }
 		 
+		iniciarSistema();
 		
-		new menuviewer().setVisible(true);
 		//new LoginUsuarioViewer().setVisible(true);
 		//new LoginFuncionarioViewer().setVisible(true);x
 		//new MenuFuncionarioViewer(null).setVisible(true);
@@ -46,7 +46,8 @@ public class BancoMalvader {
     }
 	 
 
-    public void iniciarSistema(){
+    public static void iniciarSistema(){
         // a implementar
+    	new menuviewer().setVisible(true);
     }
 }

@@ -360,6 +360,80 @@ public class ContaDao {
         }
     }
 
+    public boolean atualizarConta(Conta conta) {
+        String sql;
+        PreparedStatement stmt = null;
+
+        try {
+           
+            int idConta;
+
+            if (conta instanceof ContaCorrente) {
+                
+                String query = "SELECT id_conta FROM conta WHERE numero_conta = ?;";
+                PreparedStatement selectStmt = connection.prepareStatement(query);
+                selectStmt.setString(1, conta.getNumero());
+                
+                ResultSet rs = selectStmt.executeQuery();
+                if (rs.next()) {
+                    idConta = rs.getInt("id_conta");
+                } else {
+                    throw new IllegalArgumentException("Conta não encontrada no banco de dados.");
+                }
+                rs.close();
+                selectStmt.close();
+
+                sql = "UPDATE conta_corrente SET limite = ?, data_vencimento = ? WHERE id_conta = ?";
+                stmt = connection.prepareStatement(sql);
+                ContaCorrente cc = (ContaCorrente) conta;
+                stmt.setDouble(1, cc.getLimite());
+                stmt.setString(2, cc.getDataVencimento().toString());
+                stmt.setInt(3, idConta);
+
+            } else if (conta instanceof ContaPoupanca) {
+                
+                String query = "SELECT id_conta FROM conta WHERE numero_conta = ?;";
+                PreparedStatement selectStmt = connection.prepareStatement(query);
+                selectStmt.setString(1, conta.getNumero());
+
+                ResultSet rs = selectStmt.executeQuery();
+                if (rs.next()) {
+                    idConta = rs.getInt("id_conta");
+                } else {
+                    throw new IllegalArgumentException("Conta não encontrada no banco de dados.");
+                }
+                rs.close();
+                selectStmt.close();
+
+
+                sql = "UPDATE conta_poupanca SET taxa_rendimento = ? WHERE id_conta = ?";
+                stmt = connection.prepareStatement(sql);
+                ContaPoupanca cp = (ContaPoupanca) conta;
+                stmt.setDouble(1, cp.getTaxaRendimento());
+                stmt.setInt(2, idConta);
+            } else {
+                throw new IllegalArgumentException("Tipo de conta não suportado.");
+            }
+
+
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 
 
 }

@@ -150,6 +150,77 @@ public class FuncionarioDao {
 	        // Retorna null caso nenhum funcionário seja encontrado
 	        return null;
 	    }
+	    
+	    public boolean atualizarFuncionario(Funcionario funcionario) {
+	        // SQL para buscar o id_usuario na tabela funcionario
+	        String sqlBuscarIdUsuario = "SELECT id_usuario FROM funcionario WHERE codigo_funcionario = ?";
+	        // SQL para atualizar as tabelas
+	        String sqlFuncionario = "UPDATE funcionario SET cargo = ? WHERE codigo_funcionario = ?";
+	        String sqlUsuario = "UPDATE usuario SET nome = ?, cpf = ?, telefone = ? WHERE id_usuario = ?";
+	        String sqlEndereco = "UPDATE endereco SET local = ?, numero_casa = ?, cep = ?, bairro = ?, cidade = ?, estado = ? WHERE id_usuario = ?";
+
+	        try (Connection connection = dbutil.getConnection()) {
+	            // Desabilita o auto-commit para gerenciar a transação manualmente
+	            connection.setAutoCommit(false);
+
+	            // Buscar o id_usuario correspondente ao codigo_funcionario
+	            int idUsuario;
+	            try (PreparedStatement stmtBuscar = connection.prepareStatement(sqlBuscarIdUsuario)) {
+	                stmtBuscar.setString(1, funcionario.getCodigoFuncionario());
+	                try (ResultSet rs = stmtBuscar.executeQuery()) {
+	                    if (rs.next()) {
+	                        idUsuario = rs.getInt("id_usuario");
+	                    } else {
+	                        // Caso não encontre o id_usuario, aborta a operação
+	                        throw new Exception("Usuário não encontrado para o código informado.");
+	                    }
+	                }
+	            }
+
+	            // Atualizando dados na tabela 'funcionario'
+	            try (PreparedStatement stmtFuncionario = connection.prepareStatement(sqlFuncionario)) {
+	                stmtFuncionario.setString(1, funcionario.getCargo());
+	                stmtFuncionario.setString(2, funcionario.getCodigoFuncionario());
+	                stmtFuncionario.executeUpdate();
+	            }
+
+	            // Atualizando dados na tabela 'usuario'
+	            try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario)) {
+	                stmtUsuario.setString(1, funcionario.getNome());
+	                stmtUsuario.setString(2, funcionario.getCpf());
+	                stmtUsuario.setString(3, funcionario.getTelefone());
+	                stmtUsuario.setInt(4, idUsuario); // Usa o id_usuario recuperado
+	                stmtUsuario.executeUpdate();
+	            }
+
+	            // Atualizando dados na tabela 'endereco'
+	            try (PreparedStatement stmtEndereco = connection.prepareStatement(sqlEndereco)) {
+	                stmtEndereco.setString(1, funcionario.getEndereco().getLocal());
+	                stmtEndereco.setInt(2, funcionario.getEndereco().getNumeroCasa());
+	                stmtEndereco.setString(3, funcionario.getEndereco().getCep());
+	                stmtEndereco.setString(4, funcionario.getEndereco().getBairro());
+	                stmtEndereco.setString(5, funcionario.getEndereco().getCidade());
+	                stmtEndereco.setString(6, funcionario.getEndereco().getEstado());
+	                stmtEndereco.setInt(7, idUsuario); // Usa o id_usuario recuperado
+	                stmtEndereco.executeUpdate();
+	            }
+
+	            // Se todas as operações foram bem-sucedidas, confirma a transação
+	            connection.commit();
+	            return true;
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            // Em caso de erro, desfaz todas as operações feitas
+	            try (Connection connection = dbutil.getConnection()) {
+	                connection.rollback();
+	            } catch (Exception rollbackEx) {
+	                rollbackEx.printStackTrace();
+	            }
+	            return false;
+	        }
+	    }
+
 
 	
 

@@ -75,32 +75,27 @@ public class ClienteDao {
     }
 
     // Atualizar cliente no banco de dados
-    public boolean atualizarCliente(Cliente cliente) {
-        String sql = "UPDATE usuario SET nome = ?, cpf = ?, data_nascimento = ?, telefone = ?, tipo_usuario = ?, senha = ? WHERE id_usuario = ?;";
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-        	if (cliente.getDataNascimento() instanceof LocalDate) {
-                LocalDate dataNascimentoUtil = cliente.getDataNascimento();
-                //java.sql.Date dataNascimentoSql = new java.sql.Date(dataNascimentoUtil);
-                stmt.setString(3, cliente.getDataNascimento().toString());
-            } else {
-                // Caso a data não seja do tipo java.util.Date, tratar o erro ou logar a informação
-                System.out.println("Erro: A data de nascimento não é uma instância de java.util.Date");
-            }
-        	
-        	stmt.setString(1, cliente.getNome());
-            stmt.setString(2, cliente.getCpf());
-            //stmt.setDate(3, cliente.getDataNascimento());
-            stmt.setString(4, cliente.getTelefone());
-            stmt.setString(5, cliente.getTipouser());
-            stmt.setString(6, cliente.getSenha());
-            stmt.setInt(7, cliente.getId());
-
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+	/*
+	 * public boolean atualizarCliente(Cliente cliente) { String sql =
+	 * "UPDATE usuario SET nome = ?, cpf = ?, data_nascimento = ?, telefone = ?, tipo_usuario = ?, senha = ? WHERE id_usuario = ?;"
+	 * ; try (PreparedStatement stmt = connection.prepareStatement(sql,
+	 * Statement.RETURN_GENERATED_KEYS)) { if (cliente.getDataNascimento()
+	 * instanceof LocalDate) { LocalDate dataNascimentoUtil =
+	 * cliente.getDataNascimento(); //java.sql.Date dataNascimentoSql = new
+	 * java.sql.Date(dataNascimentoUtil); stmt.setString(3,
+	 * cliente.getDataNascimento().toString()); } else { // Caso a data não seja do
+	 * tipo java.util.Date, tratar o erro ou logar a informação System.out.
+	 * println("Erro: A data de nascimento não é uma instância de java.util.Date");
+	 * }
+	 * 
+	 * stmt.setString(1, cliente.getNome()); stmt.setString(2, cliente.getCpf());
+	 * //stmt.setDate(3, cliente.getDataNascimento()); stmt.setString(4,
+	 * cliente.getTelefone()); stmt.setString(5, cliente.getTipouser());
+	 * stmt.setString(6, cliente.getSenha()); stmt.setInt(7, cliente.getId());
+	 * 
+	 * return stmt.executeUpdate() > 0; } catch (SQLException e) {
+	 * e.printStackTrace(); } return false; }
+	 */
 
     // Excluir cliente do banco de dados
     public boolean excluirCliente(int id) {
@@ -273,8 +268,70 @@ public class ClienteDao {
 
         return null; // Retorna null se o cliente não for encontrado
     }
+    
+    public boolean atualizarCliente(Cliente cliente) {
 
+        
+        String sqlUsuario = "UPDATE usuario SET nome = ?, cpf = ?, telefone = ? WHERE id_usuario = ?;";
+        String sqlEndereco = "UPDATE endereco SET local = ?, numero_casa = ?, cep = ?, bairro = ?, cidade = ?, estado = ? WHERE id_usuario = ?;";
+        
+        // Query para buscar o ID do usuário relacionado ao cliente
+        String sqlBuscarIdUsuario = "SELECT id_usuario FROM cliente WHERE id_cliente = ?;";
 
+        try (Connection connection = dbutil.getConnection()) {
+            // Desabilita o auto-commit para gerenciar a transação manualmente
+            connection.setAutoCommit(false);
+
+            // Buscar o id_usuario correspondente ao id_cliente
+            int idUsuario;
+            try (PreparedStatement stmtBuscar = connection.prepareStatement(sqlBuscarIdUsuario)) {
+                stmtBuscar.setInt(1, cliente.getId()); // Obtém o ID do cliente
+                try (ResultSet rs = stmtBuscar.executeQuery()) {
+                    if (rs.next()) {
+                        idUsuario = rs.getInt("id_usuario");
+                    } else {
+                        // Caso não encontre o id_usuario, aborta a operação
+                        throw new Exception("Usuário não encontrado para o cliente informado.");
+                    }
+                }
+            }
+
+            // Atualizando dados na tabela 'usuario'
+            try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario)) {
+                stmtUsuario.setString(1, cliente.getNome());
+                stmtUsuario.setString(2, cliente.getCpf());
+                stmtUsuario.setString(3, cliente.getTelefone());
+                stmtUsuario.setInt(4, idUsuario); // Usa o id_usuario recuperado
+                stmtUsuario.executeUpdate();
+            }
+
+            // Atualizando dados na tabela 'endereco'
+            try (PreparedStatement stmtEndereco = connection.prepareStatement(sqlEndereco)) {
+                stmtEndereco.setString(1, cliente.getEndereco().getLocal());
+                stmtEndereco.setInt(2, cliente.getEndereco().getNumeroCasa());
+                stmtEndereco.setString(3, cliente.getEndereco().getCep());
+                stmtEndereco.setString(4, cliente.getEndereco().getBairro());
+                stmtEndereco.setString(5, cliente.getEndereco().getCidade());
+                stmtEndereco.setString(6, cliente.getEndereco().getEstado());
+                stmtEndereco.setInt(7, idUsuario); // Usa o id_usuario recuperado
+                stmtEndereco.executeUpdate();
+            }
+
+            // Se todas as operações foram bem-sucedidas, confirma a transação
+            connection.commit();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Em caso de erro, desfaz todas as operações feitas
+            try (Connection connection = dbutil.getConnection()) {
+                connection.rollback();
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
+        }
+    }
 }
 
 

@@ -208,7 +208,36 @@ public class MenuFuncionarioViewer extends JFrame {
 
     private void alterarDados() {
         // Chamar método para atualizar dados
-        JOptionPane.showMessageDialog(this, "Funcionalidade de alterar dados em manutenção! Entre em contato com o suporte.");
+        //JOptionPane.showMessageDialog(this, "Funcionalidade de alterar dados em manutenção! Entre em contato com o suporte.");
+        
+        String senhaInformada = JOptionPane.showInputDialog(this, 
+                "Digite a senha do administrador para continuar:", 
+                "Verificação de Senha", 
+                JOptionPane.PLAIN_MESSAGE);
+
+            // Verifica se o campo esta vazio
+            if (senhaInformada == null || senhaInformada.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Acesso cancelado ou senha não informada.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Valida a senha 
+            if (funcionario.getSenha().equals(senhaInformada.trim())) {
+                // Senha correta, abrir a próxima janela
+                dispose();
+                new AlterarDadosMenuViewer(funcionario).setVisible(true);
+            } else {
+                // Senha incorreta, exibir mensagem de erro
+                JOptionPane.showMessageDialog(this, 
+                    "Senha incorreta. Tente novamente.", 
+                    "Erro", 
+                    JOptionPane.ERROR_MESSAGE);
+                dispose();
+                new MenuFuncionarioViewer(funcionario).setVisible(true);
+            }
     }
 
     private void cadastrarFuncionario() {
@@ -245,7 +274,7 @@ public class MenuFuncionarioViewer extends JFrame {
 
     private void gerarRelatorios() {
         // Chamar método no controller para gerar relatórios
-        JOptionPane.showMessageDialog(this, "Funcionalidade de gerar relatórios.");
+        JOptionPane.showMessageDialog(this, "Funcionalidade de gerar relatórios em Manutenção! entre em contato com o suporte.");
     }
 
     private void sair() {

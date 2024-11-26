@@ -78,6 +78,15 @@ public class ControllerConta {
 	        // Chama o método na DAO para buscar a conta no banco de dados
 	        return contaDAO.buscarContaPorNumeroConta(numeroConta);
 	    }
+	    
+	    public boolean atualizarConta(Conta conta) {
+	        if (conta == null) {
+	            throw new IllegalArgumentException("A conta não pode ser nula.");
+	        }
+	        
+	        return contaDAO.atualizarConta(conta);
+	    }
+
 }
 
 
