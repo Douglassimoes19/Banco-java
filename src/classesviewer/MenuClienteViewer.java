@@ -22,7 +22,7 @@ public class MenuClienteViewer extends JFrame {
     public MenuClienteViewer(Cliente cliente,Conta conta) {
         this.cliente = cliente;
         this.conta = conta;
-        this.controller = new ControllerCliente(cliente);
+        this.controller = new ControllerCliente(cliente,null);
         cliente.setConta(conta); 
 
         panel = new JPanel();

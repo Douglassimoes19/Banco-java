@@ -101,7 +101,7 @@ public class LoginUsuarioViewer extends JFrame {
                 
                 Cliente cliente = controllerUsuario.autenticarCliente(cpf, senha1);
                  
-                ControllerCliente controller =  new ControllerCliente(cliente);
+                ControllerCliente controller =  new ControllerCliente(cliente, null);
 
                 if (cliente != null) {
                     JOptionPane.showMessageDialog(null, "Login realizado com sucesso!");

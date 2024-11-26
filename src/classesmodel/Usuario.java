@@ -8,13 +8,13 @@ public abstract class Usuario {
     private int id;
     private String nome;
     private String cpf;
-    private Date dataNascimento;
+    private LocalDate dataNascimento;
     private String telefone;
     private Endereco endereco;
     private String tipouser;
     private String senha;
     
-    public Usuario(int id,String nome,String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
+    public Usuario(int id,String nome,String cpf, LocalDate dataNascimento, String telefone, Endereco endereco,String tipouser, String senha) {
 		this.id = id;
     	this.nome = nome;
 		this.cpf = cpf;
@@ -51,11 +51,11 @@ public abstract class Usuario {
 		this.cpf = cpf;
 	}
 
-	public Date getDataNascimento() {
+	public LocalDate getDataNascimento() {
 		return dataNascimento;
 	}
 
-	public void setDataNascimento(Date Date) {
+	public void setDataNascimento(LocalDate Date) {
 		this.dataNascimento = Date;
 	}
 

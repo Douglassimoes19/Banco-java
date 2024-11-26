@@ -3,12 +3,15 @@ package classesviewer;
 import javax.swing.*;
 import java.awt.*;
 import classescontroller.*;
+import classesmodel.Funcionario;
 
 public class AberturaContaMenuViewer extends JFrame {
 
     private ControllerConta controller;
+    private Funcionario funcionario;
 
-    public AberturaContaMenuViewer() {
+    public AberturaContaMenuViewer(Funcionario funcionario) {
+    	this.funcionario = funcionario;
     	controller = new ControllerConta();
 
         JPanel panel = new JPanel();
@@ -45,18 +48,19 @@ public class AberturaContaMenuViewer extends JFrame {
 
     private void abrirContaPoupanca() {
         // Abrir a tela para inserir dados da Conta Poupança
-        new AberturaContaPoupancaViewer().setVisible(true);
+        new AberturaContaPoupancaViewer(funcionario).setVisible(true);
         dispose();
     }
 
     private void abrirContaCorrente() {
         // Abrir a tela para inserir dados da Conta Corrente
-        new AberturaContaCorrenteViewer().setVisible(true);
+        new AberturaContaCorrenteViewer(funcionario).setVisible(true);
         dispose();
     }
 
     private void voltar() {
         // Fechar a janela e retornar ao menu principal
         dispose();
+        new MenuFuncionarioViewer(funcionario).setVisible(true);
     }
 }

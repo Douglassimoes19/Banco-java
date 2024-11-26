@@ -1,12 +1,13 @@
 package classesmodel;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 
 public class Cliente extends Usuario {
     private Conta conta; // Atributo para associar uma conta ao cliente
 
-    public Cliente(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco, String tipouser, String senha) {
+    public Cliente(int id, String nome, String cpf, LocalDate dataNascimento, String telefone, Endereco endereco, String tipouser, String senha) {
         super(id, nome, cpf, dataNascimento, telefone, endereco, tipouser, senha);
     }
 

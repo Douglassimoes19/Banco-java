@@ -6,9 +6,9 @@ import java.time.LocalDate;
 public class ContaCorrente extends Conta{
 	
 	private double limite;
-    private Date dataVencimento;
+    private LocalDate dataVencimento;
     
-    public ContaCorrente(String numero, String agencia, double saldo, Cliente cliente, double limite,String conta, Date dataVencimento) 
+    public ContaCorrente(String numero, String agencia, double saldo, Cliente cliente, double limite,String conta, LocalDate dataVencimento) 
     {
 		super(numero, agencia, saldo, cliente,conta);
 		this.limite = limite;
@@ -28,11 +28,11 @@ public class ContaCorrente extends Conta{
 		this.limite = limite;
 	}
 
-	public Date getDataVencimento() {
+	public LocalDate getDataVencimento() {
 		return dataVencimento;
 	}
 
-	public void setDataVencimento(Date dataVencimento) {
+	public void setDataVencimento(LocalDate dataVencimento) {
 		this.dataVencimento = dataVencimento;
 	}
 

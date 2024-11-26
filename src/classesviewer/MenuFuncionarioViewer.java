@@ -17,7 +17,7 @@ public class MenuFuncionarioViewer extends JFrame {
 
     public MenuFuncionarioViewer(Funcionario funcionario) {
         this.funcionario = funcionario;
-        controller = new ControllerFuncionario(new FuncionarioDao());
+        controller = new ControllerFuncionario();
         this.controller = controller;
 
         JPanel panel = new JPanel();
@@ -103,12 +103,65 @@ public class MenuFuncionarioViewer extends JFrame {
     // Métodos para os botões
 
     private void abrirConta() {
-    	dispose();
-    	new AberturaContaMenuViewer().setVisible(true);
+        
+        String senhaInformada = JOptionPane.showInputDialog(this, 
+            "Digite a senha do administrador para continuar:", 
+            "Verificação de Senha", 
+            JOptionPane.PLAIN_MESSAGE);
+
+        // Verifica se o campo esta vazio
+        if (senhaInformada == null || senhaInformada.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "Acesso cancelado ou senha não informada.", 
+                "Aviso", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Valida a senha 
+        if (funcionario.getSenha().equals(senhaInformada.trim())) {
+            // Senha correta, abrir a próxima janela
+            dispose();
+            new AberturaContaMenuViewer(funcionario).setVisible(true);
+        } else {
+            // Senha incorreta, exibir mensagem de erro
+            JOptionPane.showMessageDialog(this, 
+                "Senha incorreta. Tente novamente.", 
+                "Erro", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 
+
     private void encerrarConta() {
-    	
+    	String senhaInformada = JOptionPane.showInputDialog(this, 
+                "Digite a senha do administrador para continuar:", 
+                "Verificação de Senha", 
+                JOptionPane.PLAIN_MESSAGE);
+
+            // Verifica se o campo esta vazio
+            if (senhaInformada == null || senhaInformada.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Acesso cancelado ou senha não informada.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Valida a senha 
+            if (funcionario.getSenha().equals(senhaInformada.trim())) {
+                // Senha correta, abrir a próxima janela
+                dispose();
+                new EncerramentoContaVeiwer(funcionario).setVisible(true);
+            } else {
+                // Senha incorreta, exibir mensagem de erro
+                JOptionPane.showMessageDialog(this, 
+                    "Senha incorreta. Tente novamente.", 
+                    "Erro", 
+                    JOptionPane.ERROR_MESSAGE);
+                dispose();
+                new MenuFuncionarioViewer(funcionario).setVisible(true);
+            }
     }
 
     private void consultarDados() {
@@ -122,18 +175,72 @@ public class MenuFuncionarioViewer extends JFrame {
           //    .append("\n");
         //}
         //JOptionPane.showMessageDialog(this, sb.toString());
-    	new ConsultaDadosMenuViewer().setVisible(true);
+    	String senhaInformada = JOptionPane.showInputDialog(this, 
+                "Digite a senha do administrador para continuar:", 
+                "Verificação de Senha", 
+                JOptionPane.PLAIN_MESSAGE);
+
+            // Verifica se o campo esta vazio
+            if (senhaInformada == null || senhaInformada.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Acesso cancelado ou senha não informada.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Valida a senha 
+            if (funcionario.getSenha().equals(senhaInformada.trim())) {
+                // Senha correta, abrir a próxima janela
+                dispose();
+                new ConsultaDadosMenuViewer(funcionario).setVisible(true);
+            } else {
+                // Senha incorreta, exibir mensagem de erro
+                JOptionPane.showMessageDialog(this, 
+                    "Senha incorreta. Tente novamente.", 
+                    "Erro", 
+                    JOptionPane.ERROR_MESSAGE);
+                dispose();
+                new MenuFuncionarioViewer(funcionario).setVisible(true);
+            }
+    	
     }
 
     private void alterarDados() {
         // Chamar método para atualizar dados
-        JOptionPane.showMessageDialog(this, "Funcionalidade de alterar dados.");
+        JOptionPane.showMessageDialog(this, "Funcionalidade de alterar dados em manutenção! Entre em contato com o suporte.");
     }
 
     private void cadastrarFuncionario() {
-        // Criar um exemplo de funcionário para cadastro
-        //Funcionario novoFuncionario = new Funcionario(0, "FUNC456", "Analista", "João Silva", "12345678900", LocalDate.of(1990, 4, 15), "11999999999","senha123" );
-        //controller.cadastrarFuncionario(novoFuncionario);
+    	String senhaInformada = JOptionPane.showInputDialog(this, 
+                "Digite a senha do administrador para continuar:", 
+                "Verificação de Senha", 
+                JOptionPane.PLAIN_MESSAGE);
+
+            // Verifica se o campo esta vazio
+            if (senhaInformada == null || senhaInformada.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Acesso cancelado ou senha não informada.", 
+                    "Aviso", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Valida a senha 
+            if (funcionario.getSenha().equals(senhaInformada.trim())) {
+                // Senha correta, abrir a próxima janela
+                dispose();
+                new CadastrarFuncionarioViewer(funcionario).setVisible(true);
+            } else {
+                // Senha incorreta, exibir mensagem de erro
+                JOptionPane.showMessageDialog(this, 
+                    "Senha incorreta. Tente novamente.", 
+                    "Erro", 
+                    JOptionPane.ERROR_MESSAGE);
+                dispose();
+                new MenuFuncionarioViewer(funcionario).setVisible(true);
+            }
+        
     }
 
     private void gerarRelatorios() {

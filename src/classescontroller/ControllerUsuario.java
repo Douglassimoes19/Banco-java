@@ -1,6 +1,7 @@
 package classescontroller;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import classesdao.usuarioDao;
 import classesmodel.Cliente;
@@ -25,7 +26,7 @@ public class ControllerUsuario {
     }
 
     // Método para cadastrar um novo usuário (Cliente ou Funcionário)
-    public boolean cadastrarUsuario(int id,String cpf, String nome, Date dataNascimento, String telefone, Endereco endereco, String senha, String tipo, String codigoFuncionario, String cargo) {
+    public boolean cadastrarUsuario(int id,String cpf, String nome, LocalDate dataNascimento, String telefone, Endereco endereco, String senha, String tipo, String codigoFuncionario, String cargo) {
         Usuario usuario;
 
         // Verificando o tipo e instanciando a classe correta
@@ -41,7 +42,7 @@ public class ControllerUsuario {
         return usuarioDao.cadastrarUsuario(usuario);  // Passando o objeto de usuário concreto para a DAO
     }
 
-    public boolean atualizarUsuario(int id,String cpf, String nome, Date dataNascimento, String telefone, Endereco endereco, String senha, String tipo, String codigoFuncionario, String cargo) {
+    public boolean atualizarUsuario(int id,String cpf, String nome, LocalDate dataNascimento, String telefone, Endereco endereco, String senha, String tipo, String codigoFuncionario, String cargo) {
         Usuario usuario;
 
         // Verificando o tipo e instanciando a classe correta

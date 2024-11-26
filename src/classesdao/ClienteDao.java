@@ -3,7 +3,7 @@ package classesdao;
 import classesmodel.*;
 import classesutil.dbutil;
 import java.sql.*;
-
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,10 +25,10 @@ public class ClienteDao {
         	System.out.println(cliente.getDataNascimento());
             //java.sql.Date sqlDataNascimento = new java.sql.Date(cliente.getDataNascimento().getTime());
             
-            if (cliente.getDataNascimento() instanceof java.util.Date) {
-                java.util.Date dataNascimentoUtil = cliente.getDataNascimento();
-                java.sql.Date dataNascimentoSql = new java.sql.Date(dataNascimentoUtil.getTime());
-                stmt.setDate(3, dataNascimentoSql);
+            if (cliente.getDataNascimento() instanceof LocalDate) {
+                LocalDate dataNascimentoUtil = cliente.getDataNascimento();
+                //java.sql.Date dataNascimentoSql = new java.sql.Date(dataNascimentoUtil);
+                stmt.setString(3, cliente.getDataNascimento().toString());
             } else {
                 // Caso a data não seja do tipo java.util.Date, tratar o erro ou logar a informação
                 System.out.println("Erro: A data de nascimento não é uma instância de java.util.Date");
@@ -37,7 +37,7 @@ public class ClienteDao {
         	
             stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getCpf());
-            stmt.setDate(3, cliente.getDataNascimento());
+            //stmt.setDate(3, cliente.getDataNascimento());
             stmt.setString(4, cliente.getTelefone());
             stmt.setString(5, cliente.getTipouser());
             stmt.setString(6, cliente.getSenha());
@@ -50,11 +50,18 @@ public class ClienteDao {
                         
                         int idUsuario = generatedKeys.getInt(1);
                         
-                        try (PreparedStatement stmtUpdate = connection.prepareStatement(set)) {
-                            stmtUpdate.setDouble(1, idUsuario);
+                        try (PreparedStatement stmtUpdate = connection.prepareStatement(set, Statement.RETURN_GENERATED_KEYS)) {
+                            stmtUpdate.setInt(1, idUsuario);
                             int rowsCliente = stmtUpdate.executeUpdate();
+
                             if (rowsCliente > 0) {
-                                return true;
+                                try (ResultSet generatedKeysCliente = stmtUpdate.getGeneratedKeys()) {
+                                    if (generatedKeysCliente.next()) {
+                                        int idCliente = generatedKeysCliente.getInt(1); // Obter id_cliente gerado
+                                        cliente.setId(idCliente); // Configurar no objeto cliente
+                                        System.out.println("ID do Cliente gerado: " + idCliente);
+                                    }
+                                }
                             }
                         }
                     }
@@ -71,9 +78,18 @@ public class ClienteDao {
     public boolean atualizarCliente(Cliente cliente) {
         String sql = "UPDATE usuario SET nome = ?, cpf = ?, data_nascimento = ?, telefone = ?, tipo_usuario = ?, senha = ? WHERE id_usuario = ?;";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, cliente.getNome());
+        	if (cliente.getDataNascimento() instanceof LocalDate) {
+                LocalDate dataNascimentoUtil = cliente.getDataNascimento();
+                //java.sql.Date dataNascimentoSql = new java.sql.Date(dataNascimentoUtil);
+                stmt.setString(3, cliente.getDataNascimento().toString());
+            } else {
+                // Caso a data não seja do tipo java.util.Date, tratar o erro ou logar a informação
+                System.out.println("Erro: A data de nascimento não é uma instância de java.util.Date");
+            }
+        	
+        	stmt.setString(1, cliente.getNome());
             stmt.setString(2, cliente.getCpf());
-            stmt.setDate(3, cliente.getDataNascimento());
+            //stmt.setDate(3, cliente.getDataNascimento());
             stmt.setString(4, cliente.getTelefone());
             stmt.setString(5, cliente.getTipouser());
             stmt.setString(6, cliente.getSenha());
@@ -109,7 +125,7 @@ public class ClienteDao {
                         rs.getInt("id_cliente"),
                         rs.getString("nome"),
                         rs.getString("cpf"),
-                        rs.getDate("data_nascimento"),
+                        rs.getDate("data_nascimento").toLocalDate(),
                         rs.getString("telefone"),
                         null, // Endereço sera tratado separadamente
                         rs.getString("tipo_usuario"),
@@ -135,7 +151,7 @@ public class ClienteDao {
                     rs.getInt("id_cliente"),
                     rs.getString("nome"),
                     rs.getString("cpf"),
-                    rs.getDate("data_nascimento"),
+                    rs.getDate("data_nascimento").toLocalDate(),
                     rs.getString("telefone"),
                     null, // Endereço sera tratado separadamente
                     rs.getString("tipo_usuario"),
@@ -167,7 +183,7 @@ public class ClienteDao {
             LEFT JOIN conta_poupanca cp ON c.id_conta = cp.id_conta
             LEFT JOIN conta_corrente cc ON c.id_conta = cc.id_conta
             WHERE 
-                c.id_cliente = ?;
+                c.id_cliente = ?;;
         """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -192,7 +208,7 @@ public class ClienteDao {
                     } else if ("CORRENTE".equalsIgnoreCase(tipoConta)) {
                     	
                         double limite = resultSet.getDouble("limite");
-                        Date dataVencimento = resultSet.getDate("data_vencimento");
+                        LocalDate dataVencimento = resultSet.getDate("data_vencimento").toLocalDate();
                         contas.add(new ContaCorrente(numeroConta, agencia, saldo, cliente, limite,tipoConta, dataVencimento));
                     }
                 }
@@ -206,7 +222,7 @@ public class ClienteDao {
     
  // Método para verificar se o cliente existe no banco
     public boolean clienteExiste(String cpf) {
-        String sql = "SELECT COUNT(*) FROM cliente WHERE cpf = ?";
+        String sql = "SELECT COUNT(*) FROM usuario WHERE cpf = ?;";
         try (
              PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, cpf);
@@ -216,6 +232,46 @@ public class ClienteDao {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    public Cliente buscarPorCpf(String cpf) {
+        String sqlCliente = "SELECT u.id_usuario, u.nome, u.cpf, u.data_nascimento, u.telefone, u.senha, e.* "
+                + "FROM usuario u "
+                + "JOIN endereco e ON u.id_usuario = e.id_usuario "
+                + "WHERE u.cpf = ?;";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sqlCliente,Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Montar o endereço
+                Endereco endereco = new Endereco(
+                    rs.getString("cep"),
+                    rs.getString("local"),
+                    rs.getInt("numero_casa"),
+                    rs.getString("bairro"),
+                    rs.getString("cidade"),
+                    rs.getString("estado")
+                );
+
+                // Montar o cliente
+                return new Cliente(
+                    rs.getInt("id_usuario"),
+                    rs.getString("nome"),
+                    rs.getString("cpf"),
+                    rs.getDate("data_nascimento").toLocalDate(),
+                    rs.getString("telefone"),
+                    endereco,
+                    "CLIENTE",
+                    rs.getString("senha")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null; // Retorna null se o cliente não for encontrado
     }
 
 

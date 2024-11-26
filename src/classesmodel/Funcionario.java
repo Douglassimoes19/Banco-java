@@ -1,13 +1,14 @@
 package classesmodel;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class Funcionario extends Usuario{
 	
 	private String codigoFuncionario;
     private String cargo;
     
-    public Funcionario(int id, String nome, String cpf, Date dataNascimento, String telefone, Endereco endereco,String tipouser, String senha, String codigoFuncionario, String cargo) {
+    public Funcionario(int id, String nome, String cpf, LocalDate dataNascimento, String telefone, Endereco endereco,String tipouser, String senha, String codigoFuncionario, String cargo) {
 		super(id,nome, cpf, dataNascimento, telefone, endereco, "FUNCIONARIO", senha);
 		this.codigoFuncionario = codigoFuncionario;
 		this.cargo = cargo;

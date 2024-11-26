@@ -11,18 +11,20 @@ public class ControllerFuncionario {
 
 	    private FuncionarioDao funcionarioDao;
 
-	    public ControllerFuncionario(FuncionarioDao funcionarioDAO) {
-	        this.funcionarioDao = funcionarioDAO;
+	    public ControllerFuncionario() {
+	        this.funcionarioDao = new FuncionarioDao();
 	    }
 
-	    public void cadastrarFuncionario(Funcionario funcionario) {
+	    public String  cadastrarFuncionario(Funcionario funcionario) {
 	        try {
 	            funcionarioDao.cadastrarFuncionario(funcionario);
 	            JOptionPane.showMessageDialog(null, "Funcionário cadastrado com sucesso!");
+	            return "sucesso";
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	            JOptionPane.showMessageDialog(null, "Erro ao cadastrar funcionário: " + e.getMessage());
 	        }
+			return "Error";
 	    }
 
 	    public List<Funcionario> listarFuncionarios() {
@@ -33,6 +35,14 @@ public class ControllerFuncionario {
 	            JOptionPane.showMessageDialog(null, "Erro ao listar funcionários: " + e.getMessage());
 	            return Collections.emptyList();
 	        }
+	    }
+	    
+	    public Funcionario buscarFuncionarioPorCodigo(String codigo) {
+	        if (codigo == null || codigo.isEmpty()) {
+	            throw new IllegalArgumentException("O código do funcionário não pode ser vazio.");
+	        }
+	        
+	        return funcionarioDao.buscarPorCodigo(codigo);
 	    }
 }
 

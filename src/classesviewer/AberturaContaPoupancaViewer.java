@@ -6,9 +6,13 @@ import classesmodel.*;
 import classescontroller.*;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class AberturaContaPoupancaViewer extends JFrame {
 
@@ -26,8 +30,10 @@ public class AberturaContaPoupancaViewer extends JFrame {
     private JTextField cidade;
     private JTextField estado;
     private JTextField senha_cliente;
+    private Funcionario funcionario;
 
-    public AberturaContaPoupancaViewer() {
+    public AberturaContaPoupancaViewer(Funcionario funcionario) {
+    	this.funcionario = funcionario;
         // Configuração geral da janela
         setTitle("Abertura de Conta Poupança");
         setSize(500, 576);
@@ -165,6 +171,12 @@ public class AberturaContaPoupancaViewer extends JFrame {
         
 
         JButton btnVoltar = new JButton("Voltar");
+        btnVoltar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	dispose();
+            	new AberturaContaMenuViewer(funcionario).setVisible(true);
+            }
+         });
         btnVoltar.setBounds(10, 506, 89, 23);
         panel.add(btnVoltar);
     }
@@ -185,35 +197,36 @@ public class AberturaContaPoupancaViewer extends JFrame {
             String estado = this.estado.getText().trim();
             String senha = senha_cliente.getText().trim();
             String dataStr = data_nascimento.getText().trim();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // ou o formato esperado
-            Date dataNascimento = null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate dataNascimento = null; 
+            
 
-            try {
-                dataNascimento = (Date) sdf.parse(dataStr);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                System.out.println("Erro ao converter a data.");
-            }
 
+            LocalDate data = dataNascimento.parse(dataStr, formatter);
+            		
             // Validação básica dos campos
             if (cpf.isEmpty() || nome.isEmpty() || agencia.isEmpty() || numeroConta.isEmpty() || senha.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos obrigatórios.");
                 return;
             }
 
-            
+            dispose();
 
          // Usar a Controller para processar o cadastro
-            ControllerCliente controller = new ControllerCliente(null);
-            controller.processarCadastroCliente(cpf, nome, dataNascimento, telefone, cep, local, bairro, numero, cidade, estado, agencia, numeroConta, senha);
+            ControllerCliente controller = new ControllerCliente(null, funcionario);
+            String result = controller.processarCadastroCliente(cpf, nome, data, telefone, cep, local, bairro, numero, cidade, estado, agencia, numeroConta, senha, "POUPANÇA",0,null);
+            
+            if(result.equals("sucesso")) {
+            	// Mensagem de sucesso
+                JOptionPane.showMessageDialog(null, "Conta poupança criada com sucesso!");
 
-
-            // Mensagem de sucesso
-            JOptionPane.showMessageDialog(null, "Conta poupança criada com sucesso!");
-
-            // Limpar os campos
-            limparCampos();
+                // Limpar os campos
+                limparCampos();
+                new MenuFuncionarioViewer(funcionario).setVisible(true);
+            }
+            
         } catch (Exception ex) {
+        	limparCampos();
             JOptionPane.showMessageDialog(null, "Erro ao criar conta: " + ex.getMessage());
         }
     

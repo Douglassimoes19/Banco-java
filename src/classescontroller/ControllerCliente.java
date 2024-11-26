@@ -1,11 +1,15 @@
 package classescontroller;
 
 import classesmodel.Cliente;
+import classesviewer.AberturaContaMenuViewer;
 import classesmodel.*;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
+
+import javax.swing.JOptionPane;
 
 import classesdao.ClienteDao;
 import classesdao.ContaDao;
@@ -15,41 +19,58 @@ public class ControllerCliente{
     private Cliente cliente;
     private ClienteDao clienteDao;
     private ContaDao contaDao;
+    private Funcionario funcionario;
 
-    public ControllerCliente(Cliente cliente) {
+    public ControllerCliente(Cliente cliente, Funcionario funcionario) {
         this.cliente = cliente;
+        this.funcionario = funcionario;
         this.contaDao = new ContaDao();
         this.clienteDao = new ClienteDao();
     }
     
  // Método que verifica se o cliente já existe e, se não, salva o cliente e cria a conta
-    public String processarCadastroCliente(String cpf, String nome, Date dataNascimento, String telefone, 
+    public String processarCadastroCliente(String cpf, String nome, LocalDate dataNascimento, String telefone, 
                                            String cep, String local, String bairro, String numero, 
                                            String cidade, String estado, String agencia, String numeroConta, 
-                                           String senha) {
+                                           String senha, String contaTipo, double limite, LocalDate dataV) {
         try {
         	
         	int numeroCasa = Integer.parseInt(numero);
             
             // Verificar se o cliente já existe
             if (clienteDao.clienteExiste(cpf)) {
-                return "Cliente já possui uma conta cadastrada.";
+            	
+            	JOptionPane.showMessageDialog(null, "Cliente ja existe!"); 
+            	new AberturaContaMenuViewer( funcionario).setVisible(true);
+            	
+            	return "error";
+               
+            }else {
+            	// Criar o cliente
+                Cliente novoCliente = new Cliente(0, nome, cpf, dataNascimento, telefone,
+                                                  new Endereco(cep, local, numeroCasa, bairro, cidade, estado),"CLIENTE",
+                                                  senha);
+
+                // Salvar o cliente e a conta no banco 
+                clienteDao.inserirCliente(novoCliente);
+                //contaDao.inserirContaPoupanca(contaPoupanca);
+                if(contaTipo.equalsIgnoreCase("POUPANÇA")) {
+                	ControllerConta conta = new ControllerConta();
+
+                    String resultado = conta.cadastrarContaPoupanca(numeroConta,  agencia, 0,  contaTipo,  senha, novoCliente, 0.75);
+
+                    return resultado;
+                }else {
+                	ControllerConta conta = new ControllerConta();
+                	
+                	String resultado = conta.cadastrarContaCorrente(numeroConta,  agencia, 0,  contaTipo,  senha, novoCliente, limite, dataV);
+
+                    return resultado;
+                }
+                
             }
 
-            // Criar o cliente
-            Cliente novoCliente = new Cliente(0, nome, cpf, dataNascimento, telefone,
-                                              new Endereco(cep, local, numeroCasa, bairro, cidade, estado),"CLIENTE",
-                                              senha);
-
-            // Salvar o cliente e a conta no banco 
-            clienteDao.inserirCliente(novoCliente);
-            //contaDao.inserirContaPoupanca(contaPoupanca);
-            String tipoConta = "POUPANÇA";
-            ControllerConta conta = new ControllerConta();
-
-            String resultado = conta.cadastrarContaPoupanca(numeroConta,  agencia, 0,  tipoConta,  senha, novoCliente, 0.75);
-
-            return resultado;
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             return "Erro ao criar conta: " + ex.getMessage();
@@ -143,5 +164,13 @@ public class ControllerCliente{
     public ContaPoupanca consultarContaPoupanca(Cliente cliente) {
         // Chama o método do DAO para buscar a conta poupança do cliente
         return contaDao.buscarContaPoupancaPorCliente(cliente);
+    }
+    
+    public Cliente buscarPorCpf(String cpf) {
+        if (cpf == null || cpf.isEmpty()) {
+            throw new IllegalArgumentException("O CPF não pode ser nulo ou vazio.");
+        }
+
+        return clienteDao.buscarPorCpf(cpf);
     }
 }

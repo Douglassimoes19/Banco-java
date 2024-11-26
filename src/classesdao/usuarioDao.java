@@ -27,7 +27,7 @@ public class usuarioDao {
                             rs.getInt("id_usuario"),
                             rs.getString("nome"),
                             rs.getString("cpf"),
-                            rs.getDate("data_nascimento"),
+                            rs.getDate("data_nascimento").toLocalDate(),
                             rs.getString("telefone"),
                             null, // Dependentes ou outros relacionamentos podem ser carregados em outro método
                             rs.getString("tipo_usuario"),
@@ -58,7 +58,7 @@ public class usuarioDao {
                             rs.getInt("id_usuario"),
                             rs.getString("nome"),
                             rs.getString("cpf"),
-                            rs.getDate("data_nascimento"),
+                            rs.getDate("data_nascimento").toLocalDate(),
                             rs.getString("telefone"),
                             null, // Endereço pode ser carregado separadamente, se necessário
                             rs.getString("tipo_usuario"),
@@ -80,7 +80,7 @@ public class usuarioDao {
 
             stmt.setString(1, usuario.getCpf());
             stmt.setString(2, usuario.getNome());
-            stmt.setDate(3, usuario.getDataNascimento());
+            stmt.setString(3, usuario.getDataNascimento().toString());
             stmt.setString(4, usuario.getTelefone());
             stmt.setString(5, usuario.getSenha());
             stmt.setString(6, usuario.getTipouser());
@@ -99,7 +99,7 @@ public class usuarioDao {
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, usuario.getNome());
-            stmt.setDate(2, usuario.getDataNascimento());
+            stmt.setString(2, usuario.getDataNascimento().toString());
             stmt.setString(3, usuario.getTelefone());
             stmt.setString(4, usuario.getSenha());
             stmt.setString(5, usuario.getCpf());
@@ -149,7 +149,7 @@ public class usuarioDao {
                                 rs.getInt("id"),
                                 rs.getString("nome"),
                                 rs.getString("cpf"),
-                                rs.getDate("data_nascimento"),
+                                rs.getDate("data_nascimento").toLocalDate(),
                                 rs.getString("telefone"),
                                 null,
                                 rs.getString("tipo_usuario"),
@@ -160,7 +160,7 @@ public class usuarioDao {
                                 rs.getInt("id"),
                                 rs.getString("nome"),
                                 rs.getString("cpf"),
-                                rs.getDate("data_nascimento"),
+                                rs.getDate("data_nascimento").toLocalDate(),
                                 rs.getString("telefone"),
                                 null, // Endereço pode ser carregado separadamente, se necessário
                                 rs.getString("tipo_usuario"),

@@ -22,7 +22,7 @@ public class FuncionarioDao {
 	        try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS)) {
 	            stmtUsuario.setString(1, funcionario.getNome());
 	            stmtUsuario.setString(2, funcionario.getCpf());
-	            stmtUsuario.setDate(3, (funcionario.getDataNascimento()));
+	            stmtUsuario.setString(3, (funcionario.getDataNascimento().toString()));
 	            stmtUsuario.setString(4, funcionario.getTelefone());
 	            stmtUsuario.setString(5, funcionario.getSenha());
 	            stmtUsuario.executeUpdate();
@@ -30,6 +30,7 @@ public class FuncionarioDao {
 	            ResultSet rs = stmtUsuario.getGeneratedKeys();
 	            if (rs.next()) {
 	                int idUsuario = rs.getInt(1);
+	                funcionario.setId(idUsuario);
 	                try (PreparedStatement stmtFuncionario = connection.prepareStatement(sqlFuncionario)) {
 	                    stmtFuncionario.setString(1, funcionario.getCodigoFuncionario());
 	                    stmtFuncionario.setString(2, funcionario.getCargo());
@@ -50,7 +51,7 @@ public class FuncionarioDao {
 	                    rs.getInt("id_usuario"),
 	                    rs.getString("nome"),
 	                    rs.getString("cpf"),
-	                    rs.getDate("data_nascimento"),
+	                    rs.getDate("data_nascimento").toLocalDate(),
 	                    rs.getString("telefone"),
 	                    null,
 	                    "FUNCIONARIO",
@@ -63,6 +64,93 @@ public class FuncionarioDao {
 	        }
 	        return funcionarios;
 	    }
+	    
+	    public Funcionario buscarPorCodigo(String codigo) {
+	        // Consultas SQL
+	        String sqlFuncionario = "SELECT codigo_funcionario, cargo, id_usuario FROM funcionario WHERE codigo_funcionario = ?;";
+	        String sqlUsuario = "SELECT nome, cpf, data_nascimento, telefone, senha FROM usuario WHERE id_usuario = ?;";
+	        String sqlEndereco = "SELECT cep, local, numero_casa, bairro, cidade, estado FROM endereco WHERE id_usuario = ?;";
+
+	        try {
+	            // Primeira consulta: Buscar dados do funcionário
+	        	System.out.println("chegou o codigo" + codigo);
+	            try (PreparedStatement stmtFuncionario = connection.prepareStatement(sqlFuncionario, Statement.RETURN_GENERATED_KEYS)) {
+	                stmtFuncionario.setString(1, codigo);
+	                ResultSet rsFuncionario = stmtFuncionario.executeQuery();
+
+	                if (rsFuncionario.next()) {
+	                    // Capturar dados do funcionário
+	                    String codigoFuncionario = rsFuncionario.getString("codigo_funcionario");
+	                    String cargo = rsFuncionario.getString("cargo");
+	                    int idUsuario = rsFuncionario.getInt("id_usuario");
+	                    
+	                    System.out.println(idUsuario);
+
+	                    // Segunda consulta: Buscar dados do usuário
+	                    try (PreparedStatement stmtUsuario = connection.prepareStatement(sqlUsuario,Statement.RETURN_GENERATED_KEYS)) {
+	                        stmtUsuario.setInt(1, idUsuario);
+	                        ResultSet rsUsuario = stmtUsuario.executeQuery();
+
+	                        if (rsUsuario.next()) {
+	                            // Capturar dados do usuário
+	                            String nome = rsUsuario.getString("nome");
+	                            String cpf = rsUsuario.getString("cpf");
+	                            java.sql.Date dataNascimentoSQL = rsUsuario.getDate("data_nascimento");
+	                            LocalDate dataNascimento = dataNascimentoSQL != null ? dataNascimentoSQL.toLocalDate() : null;
+	                            String telefone = rsUsuario.getString("telefone");
+	                            String senha = rsUsuario.getString("senha");
+
+	                            //  Buscar dados do endereço
+	                            try (PreparedStatement stmtEndereco = connection.prepareStatement(sqlEndereco,Statement.RETURN_GENERATED_KEYS)) {
+	                                stmtEndereco.setInt(1, idUsuario);
+	                                ResultSet rsEndereco = stmtEndereco.executeQuery();
+
+	                                System.out.println("passou");
+	                                if (rsEndereco.next()) {
+	                                    // Capturar dados do endereço
+	                                	System.out.println("passou tambem");
+	                                    String cep = rsEndereco.getString("cep");
+	                                    System.out.println(cep);
+	                                    String local = rsEndereco.getString("local");
+	                                    int numeroCasa = rsEndereco.getInt("numero_casa");
+	                                    String bairro = rsEndereco.getString("bairro");
+	                                    String cidade = rsEndereco.getString("cidade");
+	                                    String estado = rsEndereco.getString("estado");
+
+	                                    // Criar objeto Endereco
+	                                    Endereco endereco = new Endereco(cep, local, numeroCasa, bairro, cidade, estado);
+
+	                                    // Criar objeto Funcionario e retornar
+	                                    Funcionario novofunc = new Funcionario(
+	                                        idUsuario,
+	                                        nome,
+	                                        cpf,
+	                                        dataNascimento,
+	                                        telefone,
+	                                        endereco,
+	                                        "FUNCIONARIO", // Exemplo de tipo de usuário
+	                                        senha,
+	                                        codigoFuncionario,
+	                                        cargo
+	                                    );
+	                                    
+	                                    System.out.println(novofunc.toString());
+	                                    
+	                                    return novofunc;
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        // Retorna null caso nenhum funcionário seja encontrado
+	        return null;
+	    }
+
 	
 
 }

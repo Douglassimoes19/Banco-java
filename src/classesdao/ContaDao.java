@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class ContaDao {
     private Connection connection;
-
+    
     public ContaDao() {
         connection = dbutil.getConnection();
     }
@@ -55,19 +55,52 @@ public class ContaDao {
         return false;
     }
 
-    public void inserirContaCorrente(ContaCorrente conta) {
-        String sql = "INSERT INTO conta_corrente (numero_conta, limite, data_vencimento) VALUES (?, ?, ?)";
+    public boolean inserirContaCorrente(String numero, String agencia, double saldo, String conta, String senha, Cliente cliente, double limite, LocalDate dataVencimento) {
+        String sql = "INSERT INTO conta (numero_conta, agencia, saldo, tipo_conta, id_cliente) VALUES (?, ?, ?, ?, ?)";
+        String update = "INSERT INTO conta_corrente (limite, data_vencimento, id_conta) VALUES (?, ?, ?)";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, conta.getNumero());
-            stmt.setDouble(2, conta.getLimite());
-            stmt.setDate(3, conta.getDataVencimento());
-            stmt.executeUpdate();
+        try (PreparedStatement stmt = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            // Definir os parâmetros da primeira inserção na tabela conta
+            stmt.setString(1, numero);
+            stmt.setString(2, agencia);
+            stmt.setDouble(3, saldo);
+            stmt.setString(4, conta);
+            stmt.setInt(5, cliente.getId());
+
+            // Insere o primeiro insert
+            int rowsAffected = stmt.executeUpdate();
+
+            // Verificar se a inserção foi bem-sucedida
+            if (rowsAffected > 0) {
+                // Puxa o ID da conta
+                try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int idConta = generatedKeys.getInt(1); 
+
+                        // Inserção na tabela conta_corrente com o id da conta
+                        try (PreparedStatement stmtUpdate = connection.prepareStatement(update)) {
+                            stmtUpdate.setDouble(1, limite);
+                            
+                            // Convertendo LocalDate para java.sql.Date
+                            java.sql.Date sqlDate = java.sql.Date.valueOf(dataVencimento);
+                            stmtUpdate.setDate(2, sqlDate);
+                            
+                            stmtUpdate.setInt(3, idConta);
+
+                            int result = stmtUpdate.executeUpdate();
+
+                            if (result > 0) return true;  // Se a inserção foi bem-sucedida
+                        }
+                    }
+                }
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao inserir conta corrente no banco de dados.");
+            e.printStackTrace();  // Imprime o erro no console para debugging
         }
-    }	
+
+        return false;  // Caso a operação falhe
+    }
+
 
     // Buscar conta por ID do cliente 
     public Conta buscarContaPorClienteId(Cliente cliente) {
@@ -110,7 +143,7 @@ public class ContaDao {
                         return new ContaPoupanca(numeroConta, agencia, saldo,tipoConta, cliente, taxaRendimento);
                     } else if ("corrente".equalsIgnoreCase(tipoConta)) {
                         double limite = rs.getDouble("cc.limite");
-                        Date dataVencimento = rs.getDate("cc.data_vencimento");
+                        LocalDate dataVencimento = rs.getDate("cc.data_vencimento").toLocalDate();
                         return new ContaCorrente(numeroConta, agencia, saldo, cliente, limite,tipoConta, dataVencimento);
                     }
                 }
@@ -120,6 +153,72 @@ public class ContaDao {
         }
         return null;
     }
+    
+    public Conta buscarContaPorNumeroConta(String numeroConta) {
+        String sql = """
+			            SELECT 
+			    c.numero_conta, 
+			    c.agencia, 
+			    c.saldo, 
+			    c.tipo_conta, 
+			    c.id_cliente, 
+			    cp.taxa_rendimento, 
+			    cc.limite, 
+			    cc.data_vencimento,
+			    u.id_usuario, 
+			    u.nome, 
+			    u.cpf, 
+			    u.data_nascimento, 
+			    u.telefone, 
+			    u.senha
+			FROM 
+			    conta c
+			LEFT JOIN conta_poupanca cp ON c.id_conta = cp.id_conta
+			LEFT JOIN conta_corrente cc ON c.id_conta = cc.id_conta
+			LEFT JOIN cliente cl ON c.id_cliente = cl.id_cliente
+			LEFT JOIN usuario u ON cl.id_usuario = u.id_usuario
+			WHERE 
+			    c.numero_conta = ?;
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, numeroConta);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    // Dados da conta
+                    String numeroContaResult = rs.getString("c.numero_conta");
+                    String agencia = rs.getString("c.agencia");
+                    double saldo = rs.getDouble("c.saldo");
+                    String tipoConta = rs.getString("c.tipo_conta");
+                    
+                    // Dados do cliente
+                    int idCliente = rs.getInt("u.id_usuario");
+                    String nomeCliente = rs.getString("u.nome");
+                    String cpfCliente = rs.getString("u.cpf");
+                    LocalDate dataNascimento = rs.getDate("u.data_nascimento").toLocalDate();
+                    String telefone = rs.getString("u.telefone");
+                    String senha = rs.getString("u.senha");
+                    Cliente cliente = new Cliente(idCliente, nomeCliente, cpfCliente, dataNascimento, telefone, null, senha, senha);
+
+                    // Verifica o tipo de conta e instancia a conta de acordo com o tipo
+                    if ("poupanca".equalsIgnoreCase(tipoConta)) {
+                        double taxaRendimento = rs.getDouble("cp.taxa_rendimento");
+                        return new ContaPoupanca(numeroContaResult, agencia, saldo, tipoConta, cliente, taxaRendimento);
+                    } else if ("corrente".equalsIgnoreCase(tipoConta)) {
+                        double limite = rs.getDouble("cc.limite");
+                        LocalDate dataVencimento = rs.getDate("cc.data_vencimento").toLocalDate();
+                        return new ContaCorrente(numeroContaResult, agencia, saldo, cliente, limite, tipoConta, dataVencimento);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Retorna null caso a conta não seja encontrada
+    }
+
 
     
     // Consultar saldo da conta do cliente
@@ -169,6 +268,45 @@ public class ContaDao {
         return null; // Caso o cliente não tenha conta poupança
     }
     
+    public ContaCorrente buscarContaCorrentePorCliente(Cliente cliente) {
+        String sql = """
+            SELECT 
+                c.numero_conta, 
+                c.agencia, 
+                c.saldo, 
+                c.tipo_conta, 
+                c.id_cliente, 
+                cc.limite,
+                cc.data_vencimento
+            FROM 
+                conta c
+            LEFT JOIN conta_corrente cc ON c.id_conta = cc.id_conta
+            
+            WHERE 
+                c.numero_conta = ?;
+        """;
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, cliente.getConta().getNumero());
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // cria e retorna uma nova instância
+                String numeroConta = rs.getString("numero_conta");
+                String agencia = rs.getString("agencia");
+                double saldo = rs.getDouble("saldo");
+                double limite = rs.getDouble("limite");
+                LocalDate dataVencimento = rs.getDate("data_vencimento").toLocalDate();
+
+                return new ContaCorrente(numeroConta, agencia, saldo, cliente, limite, "CORRENTE", dataVencimento);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // Caso o cliente não tenha conta poupança
+    }
+    
     //deposita o valor na conta
     public boolean depositar(Conta conta, double valor) {
         String sql = "UPDATE conta SET saldo = saldo + ? WHERE numero_conta = ?";
@@ -202,6 +340,26 @@ public class ContaDao {
             return false;  // Se ocorrer um erro, retorna false
         }
     }
+    
+    public boolean excluirConta(String numeroConta) throws Exception {
+        String deleteContaCorrente = "DELETE FROM conta_corrente WHERE id_conta = (SELECT id_conta FROM conta WHERE numero_conta = ?)";
+        String deleteConta = "DELETE FROM conta WHERE numero_conta = ?";
+        
+        try (PreparedStatement stmt1 = connection.prepareStatement(deleteContaCorrente);
+             PreparedStatement stmt2 = connection.prepareStatement(deleteConta)) {
+
+            // Excluindo registros dependentes
+            stmt1.setString(1, numeroConta);
+            stmt1.executeUpdate();
+
+            // Excluindo o registro principal
+            stmt2.setString(1, numeroConta);
+            int rowsAffected = stmt2.executeUpdate();
+            
+            return rowsAffected > 0;
+        }
+    }
+
 
 
 }
