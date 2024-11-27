@@ -26,7 +26,7 @@ public class menuviewer extends JFrame{
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JLabel lblNewLabel = new JLabel("Menu Principal");
+		JLabel lblNewLabel = new JLabel("Bem -Vindo ao banco malvader!");
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lblNewLabel.setBounds(166, 10, 127, 23);
 		panel.add(lblNewLabel);
